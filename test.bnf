@@ -1,0 +1,3 @@
+text := A " " B
+A := word
+B := word
