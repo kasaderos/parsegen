@@ -59,6 +59,7 @@ const (
 )
 
 type Parser struct {
+	*FSM
 	line []byte
 	i    int
 	Rule *Rule
@@ -67,7 +68,7 @@ type Parser struct {
 }
 
 func NewParser(line []byte) *Parser {
-	return &Parser{line, 0, &Rule{}, false, nil}
+	return &Parser{&FSM{}, line, 0, &Rule{}, false, nil}
 }
 
 func (p *Parser) cc() byte {
@@ -160,13 +161,7 @@ func (p *Parser) Delimeter() bool {
 }
 
 func (p *Parser) Rvalues() bool {
-	if p.Space(true) {
-		return true
-	}
-	if p.Rvalue() {
-		return true
-	}
-	return p.Rvalues()
+	return p.Space(true) || p.Rvalue() || p.Rvalues()
 }
 
 // Any parses words that starts with 'starts' and ends with 'ends'
@@ -230,24 +225,12 @@ func (p *Parser) Rvalue() bool {
 // string := <"> any <"> without quotes
 func lexic(line []byte) (*Rule, error) {
 	p := NewParser(line)
-	if p.Space(false) {
-		return p.Rule, p.err
-	}
 
-	if p.Lvalue() {
-		return p.Rule, p.err
-	}
-
-	if p.Space(true) {
-		return p.Rule, p.err
-	}
-
-	if p.Delimeter() {
-		return p.Rule, p.err
-	}
-
+	p.Space(false)
+	p.Lvalue()
+	p.Space(true)
+	p.Delimeter()
 	p.Rvalues()
-
 	return p.Rule, p.err
 }
 
