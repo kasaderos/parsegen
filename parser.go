@@ -10,13 +10,6 @@ var ErrEmptyLine = errors.New("empty line")
 
 type Type int32
 
-const (
-	String Type = iota
-	Word
-	Cycle
-	Entity
-)
-
 // if typ == string -> value of string
 type entity struct {
 	typ Type
@@ -52,24 +45,22 @@ type state int32
 
 const (
 	Init state = iota
-	Space
-	Rvalue
-	Lvalue
 	Final
 )
 
 type Parser struct {
-	*FSM
 	line []byte
 	i    int
 	Rule *Rule
 	eof  bool
-	err  error
+
+	err    error
+	result []byte
 }
 
-func NewParser(line []byte) *Parser {
-	return &Parser{&FSM{}, line, 0, &Rule{}, false, nil}
-}
+// func NewParser(line []byte) *Parser {
+// 	return &Parser{line, 0, &Rule{}, false, nil}
+// }
 
 func (p *Parser) cc() byte {
 	return p.line[p.i]
@@ -196,11 +187,11 @@ func (p *Parser) Any(starts, ends byte) bool {
 		return p.eof
 	}
 
-	newEntity := entity{
-		typ:   String,
-		value: p.slice(start, end),
-	}
-	p.Rule.rvalue = append(p.Rule.rvalue, newEntity)
+	// newEntity := entity{
+	// 	typ:   String,
+	// 	value: p.slice(start, end),
+	// }
+	// p.Rule.rvalue = append(p.Rule.rvalue, newEntity)
 	return p.eof
 }
 
@@ -219,19 +210,20 @@ func (p *Parser) Rvalue() bool {
 // input data is a line without '\n'
 // rule := space lvalue space ":=" rvalues
 // lvalue := entity
-// rvalues := space rvalue | rvalues
+// rvalues := (space rvalue)(1:n)*
 // rvalue := entity | string
 // entity := word
 // string := <"> any <"> without quotes
 func lexic(line []byte) (*Rule, error) {
-	p := NewParser(line)
+	return nil, nil
+	// p := NewParser(line)
 
-	p.Space(false)
-	p.Lvalue()
-	p.Space(true)
-	p.Delimeter()
-	p.Rvalues()
-	return p.Rule, p.err
+	// p.Space(false)
+	// p.Lvalue()
+	// p.Space(true)
+	// p.Delimeter()
+	// p.Rvalues()
+	// return p.Rule, p.err
 }
 
 func getRule(line []byte) (*Rule, error) {

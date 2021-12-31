@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"io"
 	"os"
 )
@@ -21,8 +20,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	_ = bnf
 
-	if err = genParser(bnf); err != nil {
-		fmt.Println(err)
-	}
+	// if err = genParser(bnf); err != nil {
+	// 	fmt.Println(err)
+	// }
 }

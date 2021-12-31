@@ -1,7 +1,7 @@
 package main
 
 type fsmFlag int32
-type fsmState func()
+type fsmState func(*Parser)
 
 const (
 	EOF fsmFlag = iota
@@ -59,6 +59,5 @@ func (fsm *FSM) Start() {
 		if fsm.current == nil {
 			break
 		}
-		fsm.current()
 	}
 }
