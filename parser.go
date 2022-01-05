@@ -24,11 +24,11 @@ type entity struct {
 // S ::= A B C
 // lvalue S
 // rvalue A B C
-type Rule struct {
-	Marked bool
-	lvalue entity
-	rvalue []entity
-}
+// type Rule struct {
+// 	Marked bool
+// 	lvalue entity
+// 	rvalue []entity
+// }
 
 // \n\n\n
 func readLine(data *[]byte) ([]byte, error) {
@@ -41,26 +41,24 @@ func readLine(data *[]byte) ([]byte, error) {
 	return line, nil
 }
 
-type state int32
+// type state int32
 
-const (
-	Init state = iota
-	Final
-)
+// const (
+// 	Init state = iota
+// 	Final
+// )
 
 type Parser struct {
 	line []byte
 	i    int
-	Rule *Rule
 	eof  bool
 
-	err    error
-	result []byte
+	err error
 }
 
-// func NewParser(line []byte) *Parser {
-// 	return &Parser{line, 0, &Rule{}, false, nil}
-// }
+func NewParser(line []byte) *Parser {
+	return &Parser{line, 0, false, nil}
+}
 
 func (p *Parser) cc() byte {
 	return p.line[p.i]
@@ -124,12 +122,12 @@ func (p *Parser) Entity(lvalue bool) bool {
 		return p.eof
 	}
 
-	value := p.slice(start, end)
-	if lvalue {
-		p.Rule.lvalue.value = value
-	} else {
-		p.Rule.rvalue = append(p.Rule.rvalue, entity{value: value})
-	}
+	// value := p.slice(start, end)
+	// if lvalue {
+	// p.Rule.lvalue.value = value
+	// } else {
+	// p.Rule.rvalue = append(p.Rule.rvalue, entity{value: value})
+	// }
 	return p.eof
 }
 
@@ -207,53 +205,53 @@ func (p *Parser) Rvalue() bool {
 	return true
 }
 
-// input data is a line without '\n'
-// rule := space lvalue space ":=" rvalues
-// lvalue := entity
-// rvalues := (space rvalue)(1:n)*
-// rvalue := entity | string
-// entity := word
-// string := <"> any <"> without quotes
-func lexic(line []byte) (*Rule, error) {
-	return nil, nil
-	// p := NewParser(line)
+// // input data is a line without '\n'
+// // rule := space lvalue space ":=" rvalues
+// // lvalue := entity
+// // rvalues := (space rvalue)(1:n)*
+// // rvalue := entity | string
+// // entity := word
+// // string := <"> any <"> without quotes
+// func lexic(line []byte) (*Rule, error) {
+// 	return nil, nil
+// 	// p := NewParser(line)
 
-	// p.Space(false)
-	// p.Lvalue()
-	// p.Space(true)
-	// p.Delimeter()
-	// p.Rvalues()
-	// return p.Rule, p.err
-}
+// 	// p.Space(false)
+// 	// p.Lvalue()
+// 	// p.Space(true)
+// 	// p.Delimeter()
+// 	// p.Rvalues()
+// 	// return p.Rule, p.err
+// }
 
-func getRule(line []byte) (*Rule, error) {
-	if len(line) > 0 {
-		return lexic(line)
-	}
-	return nil, ErrEmptyLine
-}
+// func getRule(line []byte) (*Rule, error) {
+// 	if len(line) > 0 {
+// 		return lexic(line)
+// 	}
+// 	return nil, ErrEmptyLine
+// }
 
-// getRules parses from given bnf.
-func getRules(bnf []byte) ([]*Rule, error) {
-	rules := make([]*Rule, 0)
-	for {
-		line, err := readLine(&bnf)
-		if err == io.EOF {
-			break
-		}
+// // getRules parses from given bnf.
+// func getRules(bnf []byte) ([]*Rule, error) {
+// 	rules := make([]*Rule, 0)
+// 	for {
+// 		line, err := readLine(&bnf)
+// 		if err == io.EOF {
+// 			break
+// 		}
 
-		rule, err := getRule(line)
-		if err != nil && err != ErrEmptyLine {
-			return nil, err
-		}
-		rules = append(rules, rule)
-	}
+// 		rule, err := getRule(line)
+// 		if err != nil && err != ErrEmptyLine {
+// 			return nil, err
+// 		}
+// 		rules = append(rules, rule)
+// 	}
 
-	if err := syntax(rules); err != nil {
-		return nil, err
-	}
-	return rules, nil
-}
+// 	// if err := syntax(rules); err != nil {
+// 	// return nil, err
+// 	// }
+// 	return rules, nil
+// }
 
 func genCC(ptr **byte) func() byte {
 	return func() byte {

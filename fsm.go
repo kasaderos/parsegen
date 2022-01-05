@@ -1,63 +1,69 @@
 package main
 
-type fsmFlag int32
-type fsmState func(*Parser)
+type state struct {
+	name       string
+	start, end int
+	gp         func() int
+	f          func() bool
+}
 
-const (
-	EOF fsmFlag = iota
-	MustExist
-	ExitedWithError
-	FSMFlags
-)
+func (s *state) F() bool {
+	s.start = s.gp()
+	res := s.f()
+	s.end = s.gp()
+	return res
+}
+
+func (s state) IsTerminal() bool {
+	return s.f != nil
+}
+
+func (s state) IsFinal() bool {
+	return s.name == FinalState.name
+}
 
 type FSM struct {
-	stack   []fsmState
-	current fsmState
-	flags   [FSMFlags]bool
-}
-
-func (q *FSM) Push(f fsmState) {
-	q.stack = append(q.stack, f)
-}
-
-func (q *FSM) Empty() bool {
-	return len(q.stack) == 0
-}
-
-func (q *FSM) Top() fsmState {
-	return q.stack[len(q.stack)-1]
-}
-
-func (q *FSM) Pop() {
-	if q.Empty() {
-		q.current = nil
-	}
-	q.stack = q.stack[:len(q.stack)-1]
-}
-
-func (fsm *FSM) ChState(f fsmState) {
-	fsm.current = f
-}
-
-func (fsm *FSM) NoErrors() bool {
-	return fsm.flags[ExitedWithError]
-}
-
-func (fsm *FSM) Init(states []fsmState) {
-	// fill in reverse order
-	for i := len(states) - 1; i >= 0; i-- {
-		fsm.stack = append(fsm.stack, states[i])
-	}
+	graph     *Graph
+	current   *Node
+	backtrack Stack
 }
 
 func (fsm *FSM) Start() {
-	for !fsm.Empty() && !fsm.NoErrors() {
-		fsm.ChState(fsm.Top())
-		fsm.Pop()
+	for !fsm.current.IsFinal() {
+		if len(fsm.current.nexts) == 0 {
+			// error must ended with "E"
+			return
+		}
 
-		// exit
-		if fsm.current == nil {
-			break
+		curr := fsm.current.nexts[0]
+		if len(fsm.current.nexts) > 1 {
+			fsm.backtrack.Push(Frame{fsm.current, 1})
+		}
+
+		if curr.IsTerminal() && curr.f() {
+			if !fsm.hasBacktrack() {
+				// error
+				return
+			}
+
+			// backtrack and push next
+			top := fsm.backtrack.Top()
+			fsm.current = top.node.nexts[top.next]
+			fsm.backtrack.Pop()
+			// guarantee top.next < len(top.node.nexts)
+			if top.next+1 < len(top.node.nexts) {
+				fsm.backtrack.Push(Frame{fsm.current, top.next + 1})
+			}
+		} else {
+			fsm.current = curr
 		}
 	}
+}
+
+func (fsm *FSM) check() bool {
+	return false
+}
+
+func (fsm *FSM) hasBacktrack() bool {
+	return !fsm.backtrack.Empty()
 }
