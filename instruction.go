@@ -37,7 +37,6 @@ func execute(f function) bool {
 				stack.Push(Frame{f.funcs[0], 0})
 			}
 		case "T":
-			// fmt.Println("called T")
 			ret = f.call()
 			for !stack.Empty() {
 				f = stack.Top().f
@@ -56,6 +55,7 @@ func execute(f function) bool {
 			if ret && i+1 < len(f.funcs) {
 				ret = false
 				stack.Pop()
+				stack.Push(Frame{f, i + 1})
 				stack.Push(Frame{f.funcs[i+1], i + 1})
 			} else {
 				stack.Push(Frame{f.funcs[0], 0})
