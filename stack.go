@@ -1,9 +1,8 @@
 package main
 
 type Frame struct {
-	node *Node
-	// next index of nexts array
-	next int
+	f function
+	i int
 }
 
 type Stack struct {
