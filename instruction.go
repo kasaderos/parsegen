@@ -4,25 +4,13 @@ var S = function{}
 
 type tFunc func() bool
 
-// instruction:
-//    simple (terminal)
-//    func   (non-terminal)
-//    for
-//    if else
-//    call another func
-type instruction struct {
-	typ string
-	// if f is simple call f()
-	// if f is non-terminal move to f
-	f function
-}
-
 // lvalue = rvalue ~
 // function = instructions
 type function struct {
-	instructions []instruction
-	name         string
-	terminal     tFunc
+	typ      string
+	name     string
+	terminal tFunc
+	funcs    []function
 }
 
 func (f *function) call() bool {
@@ -36,40 +24,43 @@ func (f *function) isTerminal() bool {
 func execute(f function) bool {
 	stack := &Stack{}
 	stack.Push(Frame{f, 0})
+	// register of return value
 	ret := false
 
 	for !stack.Empty() {
-		top := stack.Top()
-		next := top.f.instructions[top.i]
-		switch next.typ {
+		f := stack.Top().f
+		i := stack.Top().i
+		switch f.typ {
 		case "N":
-			// fmt.Println("pushed N")
-			if len(next.f.instructions) > 0 {
-				stack.Push(Frame{next.f, 0})
+			// if non terminal is not empty push
+			if len(f.funcs) > 0 {
+				stack.Push(Frame{f.funcs[0], 0})
 			}
 		case "T":
 			// fmt.Println("called T")
-			ret = next.f.call()
+			ret = f.call()
 			for !stack.Empty() {
-				top = stack.Top()
-				typ := top.f.instructions[top.i].typ
-				if typ == "L" || typ == "C" {
+				f = stack.Top().f
+				i = stack.Top().i
+				if ret && (f.typ == "C" || f.typ == "L") {
 					break
 				}
-				if !ret && top.i+1 < len(top.f.instructions) {
+				if f.typ == "N" && i+1 < len(f.funcs) {
 					stack.Pop()
-					stack.Push(Frame{f, top.i + 1})
+					stack.Push(Frame{f.funcs[i+1], i + 1})
 					break
 				}
 				stack.Pop()
 			}
 		case "L":
-			if ret && top.i+1 < len(next.f.instructions) {
+			if ret && i+1 < len(f.funcs) {
 				ret = false
 				stack.Pop()
-				stack.Push(Frame{next.f, top.i + 1})
+				stack.Push(Frame{f.funcs[i+1], i + 1})
+			} else {
+				stack.Push(Frame{f.funcs[0], 0})
 			}
-		case "C":
+			// case "C":
 		}
 	}
 	return ret
@@ -79,8 +70,9 @@ func execute(f function) bool {
 	F()
 */
 
-// func():
-//    A() | B()
+// LOGIC():
+//    G(A())
+//    G(B())
 
 // A():
 //   print('A')

@@ -7,40 +7,53 @@ import (
 
 func TestExecuteSimple(t *testing.T) {
 	f := function{
-		instructions: []instruction{
-			{"T", function{terminal: func() bool { fmt.Println("A"); return false }}},
-			{"T", function{terminal: func() bool { fmt.Println("B"); return false }}},
-		},
-	}
-	execute(f)
-
-	f = function{
-		instructions: []instruction{
-			{"N", function{
-				instructions: []instruction{
-					{"N", function{
-						instructions: []instruction{
-							{"T", function{terminal: func() bool { fmt.Println("C"); return false }}},
-						}},
-					},
-				}},
-			},
-			{"T", function{terminal: func() bool { fmt.Println("D"); return false }}},
+		typ: "N",
+		funcs: []function{
+			{typ: "T", terminal: func() bool { fmt.Println("A"); return false }},
+			{typ: "T", terminal: func() bool { fmt.Println("B"); return false }},
 		},
 	}
 	execute(f)
 }
 
-func TestExecuteLogic(t *testing.T) {
-	f := function{}
-	f.instructions = append(f.instructions, instruction{
-		typ: "L",
-		f: function{
-			instructions: []instruction{
-				{"T", function{terminal: func() bool { fmt.Println("A"); return false }}},
-				{"T", function{terminal: func() bool { fmt.Println("B"); return false }}},
+func TestExecuteComplex(t *testing.T) {
+	f := function{
+		typ: "N",
+		funcs: []function{
+			{typ: "N", funcs: []function{
+				{typ: "N", funcs: []function{
+					{typ: "T", terminal: func() bool { fmt.Println("C"); return false }},
+				}},
 			},
+			},
+			{typ: "T", terminal: func() bool { fmt.Println("D"); return false }},
 		},
-	})
+	}
+	execute(f)
+}
+
+func TestExecuteLogic1(t *testing.T) {
+	f := function{typ: "N"}
+	f.funcs = append(f.funcs, function{
+		typ: "L",
+		funcs: []function{
+			{typ: "T", terminal: func() bool { fmt.Println("A"); return false }},
+			{typ: "T", terminal: func() bool { fmt.Println("B"); return false }},
+		},
+	},
+	)
+	fmt.Println(execute(f))
+}
+
+func TestExecuteLogic2(t *testing.T) {
+	f := function{typ: "N"}
+	f.funcs = append(f.funcs, function{
+		typ: "L",
+		funcs: []function{
+			{typ: "T", terminal: func() bool { fmt.Println("A"); return true }},
+			{typ: "T", terminal: func() bool { fmt.Println("B"); return false }},
+		},
+	},
+	)
 	fmt.Println(execute(f))
 }

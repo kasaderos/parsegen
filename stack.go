@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type Frame struct {
 	f function
 	i int
@@ -23,4 +25,15 @@ func (stck *Stack) Top() Frame {
 
 func (stck *Stack) Empty() bool {
 	return len(stck.p) == 0
+}
+
+func (stck *Stack) Print() {
+	fmt.Println("-----")
+	if stck.Empty() {
+		return
+	}
+	for _, frame := range stck.p {
+		fmt.Println("|", frame.f.funcs[frame.i].typ, frame.i, "|")
+	}
+	fmt.Println("-----")
 }
