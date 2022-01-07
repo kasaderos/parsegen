@@ -31,10 +31,21 @@ func (f *function) existFunc(current int) bool {
 	return current < len(f.funcs)
 }
 
-func printTree(f *function) {
-	fmt.Println(f.name)
+func recPrint(f *function, i int) {
+	if f.isTerminal() {
+		fmt.Printf("%s\n", f.name)
+	} else {
+		fmt.Printf("%s--\n", f.name)
+	}
 	for _, subf := range f.funcs {
 		fmt.Printf("\t")
-		printTree(subf)
+		for j := 0; j < i-1; j++ {
+			fmt.Printf("\t")
+		}
+		fmt.Printf("-")
+		recPrint(subf, i+1)
 	}
+}
+func printTree(f *function) {
+	recPrint(f, 1)
 }

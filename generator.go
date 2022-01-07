@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 )
 
 type term struct {
@@ -75,7 +74,6 @@ func generateFunction(rules []Rule) (*function, error) {
 			for _, fn := range funcs {
 				// if it's found append
 				if subf.name == fn.name {
-					fmt.Println("add", fn.funcs, "to", subf.name)
 					subf.funcs = append(subf.funcs, fn.funcs...)
 					found = true
 					break

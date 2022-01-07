@@ -5,6 +5,10 @@ import (
 )
 
 func assert(t *testing.T, b bool, s ...interface{}) {
+	err, ok := s[0].(error)
+	if ok {
+		t.Errorf("assert failed %v\n", err.Error())
+	}
 	if !b {
 		t.Errorf("assert failed %v\n", s)
 	}

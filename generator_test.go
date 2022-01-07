@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -20,15 +19,18 @@ func TestGenerateFunction1(t *testing.T) {
 		}},
 		{term{typ: 'N', name: "C"}, []term{
 			{typ: 'N', name: "D"},
+			{typ: 'N', name: "E"},
 		}},
 		{term{typ: 'N', name: "D"}, []term{
 			{'T', "Terminal", func() bool { /*fmt.Println("D");*/ return false }},
 		}},
+		{term{typ: 'N', name: "E"}, []term{
+			{'T', "Terminal", func() bool { /*fmt.Println("E");*/ return false }},
+		}},
 	}
 	f, err := generateFunction(rules)
-	assert(t, err == nil, "error")
+	assert(t, err == nil, err)
 	assert(t, len(f.funcs) == 3, "len != 3")
 	assert(t, len(f.funcs[0].funcs) == 1, "len sub != 1")
 	printTree(f)
-	fmt.Println(f)
 }
