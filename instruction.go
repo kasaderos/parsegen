@@ -21,26 +21,31 @@ func (f *function) isTerminal() bool {
 	return f.terminal != nil
 }
 
-func back(stack *Stack, ret bool) {
+func (f *function) hasNext(current int) bool {
+	return current+1 < len(f.funcs)
+}
+
+func (f *function) exist(current int) bool {
+	return current < len(f.funcs)
+}
+
+func back(stack *Stack, ret *bool) {
 	for !stack.Empty() {
 		f := stack.Top().f
 		i := stack.Top().i
+		stack.Pop()
 		switch f.typ {
-		case "T":
-			stack.Pop()
 		case "L":
-			if ret {
-				if i+1 < len(f.funcs) {
-					stack.Pop()
+			if *ret {
+				if f.hasNext(i) {
+					*ret = false
 					stack.Push(Frame{f, i + 1})
 					stack.Push(Frame{f.funcs[i+1], 0})
 					return
 				}
 			}
-			stack.Pop()
 		case "N":
-			stack.Pop()
-			if !ret && i+1 < len(f.funcs) {
+			if !*ret && f.hasNext(i) {
 				stack.Push(Frame{f.funcs[i+1], i + 1})
 				return
 			}
@@ -60,16 +65,16 @@ func execute(f function) bool {
 		switch f.typ {
 		case "N", "L":
 			// if non terminal is not empty push
-			if i < len(f.funcs) {
+			if f.exist(i) {
 				stack.Push(Frame{f.funcs[i], i})
 			} else {
-				back(stack, ret)
+				back(stack, &ret)
 			}
 		case "T":
 			ret = f.call()
-			back(stack, ret)
+			back(stack, &ret)
 		default:
-			back(stack, ret)
+			back(stack, &ret)
 		}
 	}
 	return ret
