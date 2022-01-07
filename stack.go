@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 type Frame struct {
-	f function
+	f *function
 	i int
 }
 

@@ -12,7 +12,7 @@ type function struct {
 	typ      byte
 	name     string
 	terminal tFunc
-	funcs    []function
+	funcs    []*function
 }
 
 func (f *function) call() bool {
@@ -31,7 +31,7 @@ func (f *function) existFunc(current int) bool {
 	return current < len(f.funcs)
 }
 
-func printTree(f function) {
+func printTree(f *function) {
 	fmt.Println(f.name)
 	for _, subf := range f.funcs {
 		fmt.Printf("\t")

@@ -17,16 +17,16 @@ type Rule struct {
 }
 
 // syntax analyzer
-func generateFunction(rules []Rule) (function, error) {
-	funcs := []function{}
-	var initial function
+func generateFunction(rules []Rule) (*function, error) {
+	funcs := []*function{}
+	var initial *function
 	count := 0
 	for _, rule := range rules {
-		f := function{}
+		f := &function{}
 		f.typ = rule.lvalue.typ
 		f.name = rule.lvalue.name
 		for _, rvalue := range rule.rvalue {
-			f.funcs = append(f.funcs, function{
+			f.funcs = append(f.funcs, &function{
 				typ:      rvalue.typ,
 				name:     rvalue.name,
 				terminal: rvalue.terminal,
@@ -41,7 +41,7 @@ func generateFunction(rules []Rule) (function, error) {
 		}
 	}
 	if count != 1 {
-		return function{}, errors.New("initial rule 'S' not found or there're more than one")
+		return nil, errors.New("initial rule 'S' not found or there're more than one")
 	}
 
 	// brute force O(n^3)
@@ -49,7 +49,7 @@ func generateFunction(rules []Rule) (function, error) {
 	for _, f := range funcs {
 		if f.isTerminal() {
 			if f.existFunc(0) {
-				return function{}, errors.New("terminal had sub funcs")
+				return nil, errors.New("terminal had sub funcs")
 			}
 			continue
 		}
@@ -59,12 +59,12 @@ func generateFunction(rules []Rule) (function, error) {
 		funcNames[""] = struct{}{}
 		for i, subf := range f.funcs {
 			if _, ok := funcNames[subf.name]; ok {
-				return function{}, errors.New("all rvalue must be unique")
+				return nil, errors.New("all rvalue must be unique")
 			}
 
 			if subf.isTerminal() {
 				if subf.existFunc(0) {
-					return function{}, errors.New("terminal had sub funcs")
+					return nil, errors.New("terminal had sub funcs")
 				}
 				continue
 			}
@@ -84,16 +84,16 @@ func generateFunction(rules []Rule) (function, error) {
 				if subf.name == f.name {
 					// must be typ L
 					if f.typ != 'L' {
-						return function{}, errors.New("invalid recursive call")
+						return nil, errors.New("invalid recursive call")
 					}
 					// defined in the end
 					if i != len(f.funcs)-1 {
-						return function{}, errors.New("self func must defined in the end")
+						return nil, errors.New("self func must defined in the end")
 					}
 				}
 			}
 			if !found {
-				return function{}, errors.New("not resolved entity")
+				return nil, errors.New("not resolved entity")
 			}
 			f.funcs[i] = subf
 		}
