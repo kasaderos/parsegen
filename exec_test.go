@@ -21,11 +21,11 @@ func TestExecuteSimple(t *testing.T) {
 	f := function{
 		typ: 'N',
 		funcs: []*function{
-			{typ: 'T', terminal: func() bool { n++; return false }},
-			{typ: 'T', terminal: func() bool { n++; return false }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return false }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return false }},
 		},
 	}
-	ret := execute(&f)
+	ret := execute(&f, nil)
 	assert(t, n == 2)
 	assert(t, !ret)
 }
@@ -36,18 +36,18 @@ func TestExecuteComplex1(t *testing.T) {
 		typ: 'N',
 		funcs: []*function{
 			{typ: 'N', funcs: []*function{
-				{typ: 'T', terminal: func() bool { n++; return false }},
+				{typ: 'T', terminal: func(it *Iterator) bool { n++; return false }},
 			}},
 			{typ: 'N', funcs: []*function{
-				{typ: 'T', terminal: func() bool { n++; return false }},
+				{typ: 'T', terminal: func(it *Iterator) bool { n++; return false }},
 			}},
 			{typ: 'N', funcs: []*function{
-				{typ: 'T', terminal: func() bool { n++; return false }},
+				{typ: 'T', terminal: func(it *Iterator) bool { n++; return false }},
 			}},
-			{typ: 'T', terminal: func() bool { n++; return false }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return false }},
 		},
 	}
-	ret := execute(&f)
+	ret := execute(&f, nil)
 	assert(t, n == 4, "n != 4")
 	assert(t, !ret)
 }
@@ -64,9 +64,9 @@ func TestExecuteComplex2(t *testing.T) {
 		},
 	},
 	)
-	f2.funcs = append(f2.funcs, &function{typ: 'T', terminal: func() bool { n++; return false }})
+	f2.funcs = append(f2.funcs, &function{typ: 'T', terminal: func(it *Iterator) bool { n++; return false }})
 	f.funcs = append(f.funcs, &f2)
-	ret := execute(&f)
+	ret := execute(&f, nil)
 	assert(t, n == 1)
 	assert(t, !ret)
 }
@@ -77,12 +77,12 @@ func TestExecuteLogic1(t *testing.T) {
 	f.funcs = append(f.funcs, &function{
 		typ: 'L',
 		funcs: []*function{
-			{typ: 'T', terminal: func() bool { n++; return false }},
-			{typ: 'T', terminal: func() bool { n++; return false }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return false }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return false }},
 		},
 	},
 	)
-	ret := execute(&f)
+	ret := execute(&f, nil)
 	assert(t, n == 1)
 	assert(t, !ret)
 }
@@ -93,12 +93,12 @@ func TestExecuteLogic2(t *testing.T) {
 	f.funcs = append(f.funcs, &function{
 		typ: 'L',
 		funcs: []*function{
-			{typ: 'T', terminal: func() bool { n++; return true }},
-			{typ: 'T', terminal: func() bool { n++; return false }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return true }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return false }},
 		},
 	},
 	)
-	ret := execute(&f)
+	ret := execute(&f, nil)
 	assert(t, n == 2)
 	assert(t, !ret)
 }
@@ -109,13 +109,13 @@ func TestExecuteLogic3(t *testing.T) {
 	f.funcs = append(f.funcs, &function{
 		typ: 'L',
 		funcs: []*function{
-			{typ: 'T', terminal: func() bool { n++; return true }},
-			{typ: 'T', terminal: func() bool { n++; return true }},
-			{typ: 'T', terminal: func() bool { n++; return false }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return true }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return true }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return false }},
 		},
 	},
 	)
-	ret := execute(&f)
+	ret := execute(&f, nil)
 	assert(t, n == 3)
 	assert(t, !ret)
 }
@@ -127,14 +127,14 @@ func TestExecuteLogic4(t *testing.T) {
 	f2.funcs = append(f2.funcs, &function{
 		typ: 'L',
 		funcs: []*function{
-			{typ: 'T', terminal: func() bool { n++; return true }},
-			{typ: 'T', terminal: func() bool { n++; return true }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return true }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return true }},
 		},
 	},
 	)
-	f2.funcs = append(f2.funcs, &function{typ: 'T', terminal: func() bool { n++; return false }})
+	f2.funcs = append(f2.funcs, &function{typ: 'T', terminal: func(it *Iterator) bool { n++; return false }})
 	f.funcs = append(f.funcs, &f2)
-	ret := execute(&f)
+	ret := execute(&f, nil)
 	assert(t, n == 3)
 	assert(t, !ret)
 }
@@ -146,14 +146,14 @@ func TestExecuteLogicBad1(t *testing.T) {
 	f2.funcs = append(f2.funcs, &function{
 		typ: 'L',
 		funcs: []*function{
-			{typ: 'T', terminal: func() bool { n++; return true }},
-			{typ: 'T', terminal: func() bool { n++; return true }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return true }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return true }},
 		},
 	},
 	)
-	f2.funcs = append(f2.funcs, &function{typ: 'T', terminal: func() bool { n++; return true }})
+	f2.funcs = append(f2.funcs, &function{typ: 'T', terminal: func(it *Iterator) bool { n++; return true }})
 	f.funcs = append(f.funcs, &f2)
-	ret := execute(&f)
+	ret := execute(&f, nil)
 	assert(t, n == 3)
 	assert(t, ret)
 }
@@ -164,13 +164,13 @@ func TestExecuteLogicBad2(t *testing.T) {
 	f.funcs = append(f.funcs, &function{
 		typ: 'L',
 		funcs: []*function{
-			{typ: 'T', terminal: func() bool { n++; return true }},
-			{typ: 'T', terminal: func() bool { n++; return true }},
-			{typ: 'T', terminal: func() bool { n++; return true }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return true }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return true }},
+			{typ: 'T', terminal: func(it *Iterator) bool { n++; return true }},
 		},
 	},
 	)
-	ret := execute(&f)
+	ret := execute(&f, nil)
 	assert(t, n == 3)
 	assert(t, ret)
 }
@@ -179,8 +179,8 @@ func TestExecuteRecursive(t *testing.T) {
 	// F = T | F
 	n := 0
 	f := function{typ: 'L'}
-	f.funcs = append(f.funcs, &function{typ: 'T', terminal: func() bool { n++; return n < 3 }})
+	f.funcs = append(f.funcs, &function{typ: 'T', terminal: func(it *Iterator) bool { n++; return n < 3 }})
 	f.funcs = append(f.funcs, &f)
-	execute(&f)
+	execute(&f, nil)
 	assert(t, n == 3)
 }
