@@ -1,209 +1,261 @@
 package main
 
-import (
-	"bytes"
-	"errors"
-	"io"
-)
-
-var ErrEmptyLine = errors.New("empty line")
-
-type Type int32
-
-// if typ == string -> value of string
-type entity struct {
-	typ Type
-
-	// cycle parameters
-	minRepeats int // -2 ~ 0..inf is kind of rule: ( ENTITY )*
-	maxRepeats int // -1 ~ inf
-	value      []byte
+type Iterator struct {
 }
 
-// Rule is a set of word like these:
-// S ::= A B C
-// lvalue S
-// rvalue A B C
-// type Rule struct {
-// 	Marked bool
-// 	lvalue entity
-// 	rvalue []entity
+func bnfparser(it *Iterator) *function {
+	rules := []Rule{
+		{term{typ: 'N', name: "S"}, []term{
+			{typ: 'N', name: "rule"},
+		}},
+		{term{typ: 'N', name: "rule"}, []term{
+			{typ: 'L', name: "lvalue"},
+			{typ: 'T', name: "assign", terminal: termStr("=", it)},
+			{typ: 'N', name: "expr", terminal: termStr("=", it)},
+			{typ: 'T', name: "end", terminal: termStr(";", it)},
+		}},
+		{term{typ: 'L', name: "lvalue"}, []term{
+			{typ: 'T', name: "lid", terminal: termID(it)},
+			{typ: 'N', name: "highlighted"},
+		}},
+		{term{typ: 'N', name: "highlighted"}, []term{
+			{typ: 'T', name: "openH", terminal: termStr(">", it)},
+			{typ: 'T', name: "lid", terminal: termID(it)},
+			{typ: 'T', name: "openC", terminal: termStr(">", it)},
+		}},
+
+		{term{typ: 'N', name: "expr"}, []term{
+			{typ: 'L', name: "rvalue"},
+			{typ: 'L', name: "expr1"},
+		}},
+		{term{typ: 'L', name: "expr1"}, []term{
+			{typ: 'L', name: "exprT1"},
+			{typ: 'L', name: "exprT2"},
+		}},
+		{term{typ: 'L', name: "exprT1"}, []term{
+			{typ: 'L', name: "rvalue"},
+			{typ: 'T', name: "empty", terminal: termEmpty(it)},
+			{typ: 'L', name: "exprT1"},
+		}},
+		{term{typ: 'L', name: "exprT2"}, []term{
+			{typ: 'N', name: "rvalue1"},
+			{typ: 'T', name: "empty", terminal: termEmpty(it)},
+			{typ: 'L', name: "exprT2"},
+		}},
+		{term{typ: 'N', name: "rvalue1"}, []term{
+			{typ: 'T', name: "signOr", terminal: termStr("|", it)},
+			{typ: 'L', name: "rvalue"},
+		}},
+		{term{typ: 'L', name: "rvalue"}, []term{
+			{typ: 'T', name: "rid", terminal: termID(it)},
+			{typ: 'T', name: "string", terminal: termAnyQuoted(it)},
+		}},
+	}
+	f, err := generateFunction(rules)
+	if err != nil {
+		panic(err)
+	}
+	return f
+}
+
+// var ErrEmptyLine = errors.New("empty line")
+
+// type Type int32
+
+// // if typ == string -> value of string
+// type entity struct {
+// 	typ Type
+
+// 	// cycle parameters
+// 	minRepeats int // -2 ~ 0..inf is kind of rule: ( ENTITY )*
+// 	maxRepeats int // -1 ~ inf
+// 	value      []byte
 // }
 
-// \n\n\n
-func readLine(data *[]byte) ([]byte, error) {
-	ind := bytes.Index(*data, []byte("\n"))
-	if ind < 0 {
-		return nil, io.EOF
-	}
-	line := (*data)[:ind]
-	*data = (*data)[ind+1:]
-	return line, nil
-}
+// // Rule is a set of word like these:
+// // S ::= A B C
+// // lvalue S
+// // rvalue A B C
+// // type Rule struct {
+// // 	Marked bool
+// // 	lvalue entity
+// // 	rvalue []entity
+// // }
 
-// type state int32
+// // \n\n\n
+// func readLine(data *[]byte) ([]byte, error) {
+// 	ind := bytes.Index(*data, []byte("\n"))
+// 	if ind < 0 {
+// 		return nil, io.EOF
+// 	}
+// 	line := (*data)[:ind]
+// 	*data = (*data)[ind+1:]
+// 	return line, nil
+// }
 
-// const (
-// 	Init state = iota
-// 	Final
-// )
+// // type state int32
 
-type Parser struct {
-	line []byte
-	i    int
-	eof  bool
+// // const (
+// // 	Init state = iota
+// // 	Final
+// // )
 
-	err error
-}
+// type Parser struct {
+// 	line []byte
+// 	i    int
+// 	eof  bool
 
-func NewParser(line []byte) *Parser {
-	return &Parser{line, 0, false, nil}
-}
+// 	err error
+// }
 
-func (p *Parser) cc() byte {
-	return p.line[p.i]
-}
+// func NewParser(line []byte) *Parser {
+// 	return &Parser{line, 0, false, nil}
+// }
 
-func (p *Parser) gp() int {
-	return p.i
-}
+// func (p *Parser) cc() byte {
+// 	return p.line[p.i]
+// }
 
-func (p *Parser) slice(start, end int) []byte {
-	return p.line[start:end]
-}
+// func (p *Parser) gp() int {
+// 	return p.i
+// }
 
-func (p *Parser) gc() bool {
-	if p.i >= len(p.line) {
-		p.eof = true
-		return true
-	}
-	p.i++
-	return false
-}
+// func (p *Parser) slice(start, end int) []byte {
+// 	return p.line[start:end]
+// }
 
-// ____FAFDFD__
-func (p *Parser) Space(must bool) bool {
-	exist := false
-	for !p.eof {
-		char := p.cc()
-		if char == ' ' {
-			exist = true
-		} else if must && !exist {
-			p.err = errors.New("not space at line %d TODO")
-			return true
-		} else {
-			return p.eof
-		}
-		p.gc()
-	}
-	return p.eof
-}
+// func (p *Parser) gc() bool {
+// 	if p.i >= len(p.line) {
+// 		p.eof = true
+// 		return true
+// 	}
+// 	p.i++
+// 	return false
+// }
 
-func isAlpha(b byte) bool {
-	return b >= 'a' && b <= 'z' || b >= 'A' && b <= 'Z'
-}
+// // ____FAFDFD__
+// func (p *Parser) Space(must bool) bool {
+// 	exist := false
+// 	for !p.eof {
+// 		char := p.cc()
+// 		if char == ' ' {
+// 			exist = true
+// 		} else if must && !exist {
+// 			p.err = errors.New("not space at line %d TODO")
+// 			return true
+// 		} else {
+// 			return p.eof
+// 		}
+// 		p.gc()
+// 	}
+// 	return p.eof
+// }
 
-func (p *Parser) Entity(lvalue bool) bool {
-	start := p.gp()
-	for !p.eof {
-		char := p.cc()
-		if !isAlpha(char) {
-			break
-		}
-		p.gc()
-	}
-	end := p.gp()
+// func isAlpha(b byte) bool {
+// 	return b >= 'a' && b <= 'z' || b >= 'A' && b <= 'Z'
+// }
 
-	if start == end {
-		if lvalue {
-			p.err = errors.New("lvalue can't be empty")
-			return true
-		}
-		return p.eof
-	}
+// func (p *Parser) Entity(lvalue bool) bool {
+// 	start := p.gp()
+// 	for !p.eof {
+// 		char := p.cc()
+// 		if !isAlpha(char) {
+// 			break
+// 		}
+// 		p.gc()
+// 	}
+// 	end := p.gp()
 
-	// value := p.slice(start, end)
-	// if lvalue {
-	// p.Rule.lvalue.value = value
-	// } else {
-	// p.Rule.rvalue = append(p.Rule.rvalue, entity{value: value})
-	// }
-	return p.eof
-}
+// 	if start == end {
+// 		if lvalue {
+// 			p.err = errors.New("lvalue can't be empty")
+// 			return true
+// 		}
+// 		return p.eof
+// 	}
 
-func (p *Parser) Lvalue() bool {
-	return p.Entity(true)
-}
+// 	// value := p.slice(start, end)
+// 	// if lvalue {
+// 	// p.Rule.lvalue.value = value
+// 	// } else {
+// 	// p.Rule.rvalue = append(p.Rule.rvalue, entity{value: value})
+// 	// }
+// 	return p.eof
+// }
 
-func (p *Parser) Delimeter() bool {
-	first := p.cc()
-	p.gc()
-	second := p.cc()
-	p.gc()
+// func (p *Parser) Lvalue() bool {
+// 	return p.Entity(true)
+// }
 
-	if first != ':' || second != '=' {
-		p.err = errors.New("invalid delimeter")
-		return true
-	}
+// func (p *Parser) Delimeter() bool {
+// 	first := p.cc()
+// 	p.gc()
+// 	second := p.cc()
+// 	p.gc()
 
-	return p.eof
-}
+// 	if first != ':' || second != '=' {
+// 		p.err = errors.New("invalid delimeter")
+// 		return true
+// 	}
 
-func (p *Parser) Rvalues() bool {
-	return p.Space(true) || p.Rvalue() || p.Rvalues()
-}
+// 	return p.eof
+// }
 
-// Any parses words that starts with 'starts' and ends with 'ends'
-// If any has two or more ends, it stops in first 'ends' byte
-func (p *Parser) Any(starts, ends byte) bool {
-	if p.cc() != starts {
-		p.err = errors.New("invalid start of 'any' entity")
-		return true
-	}
-	p.gc()
+// func (p *Parser) Rvalues() bool {
+// 	return p.Space(true) || p.Rvalue() || p.Rvalues()
+// }
 
-	start := p.gp()
-	end := start
-	ended := false
-	for !p.eof {
-		if p.cc() == ends {
-			ended = true
-			p.gc()
-			break
-		}
-		p.gc()
-		end = p.gp()
-	}
+// // Any parses words that starts with 'starts' and ends with 'ends'
+// // If any has two or more ends, it stops in first 'ends' byte
+// func (p *Parser) Any(starts, ends byte) bool {
+// 	if p.cc() != starts {
+// 		p.err = errors.New("invalid start of 'any' entity")
+// 		return true
+// 	}
+// 	p.gc()
 
-	if !ended {
-		p.err = errors.New("invalid end of 'any' entity")
-		return true
-	}
+// 	start := p.gp()
+// 	end := start
+// 	ended := false
+// 	for !p.eof {
+// 		if p.cc() == ends {
+// 			ended = true
+// 			p.gc()
+// 			break
+// 		}
+// 		p.gc()
+// 		end = p.gp()
+// 	}
 
-	if start == end {
-		// feature 'any' might be empty inside
-		return p.eof
-	}
+// 	if !ended {
+// 		p.err = errors.New("invalid end of 'any' entity")
+// 		return true
+// 	}
 
-	// newEntity := entity{
-	// 	typ:   String,
-	// 	value: p.slice(start, end),
-	// }
-	// p.Rule.rvalue = append(p.Rule.rvalue, newEntity)
-	return p.eof
-}
+// 	if start == end {
+// 		// feature 'any' might be empty inside
+// 		return p.eof
+// 	}
 
-func (p *Parser) String() bool {
-	// without quotes inside (symbol '"')
-	return p.Any('"', '"')
-}
+// 	// newEntity := entity{
+// 	// 	typ:   String,
+// 	// 	value: p.slice(start, end),
+// 	// }
+// 	// p.Rule.rvalue = append(p.Rule.rvalue, newEntity)
+// 	return p.eof
+// }
 
-func (p *Parser) Rvalue() bool {
-	if !p.Entity(false) || !p.String() {
-		return p.eof
-	}
-	return true
-}
+// func (p *Parser) String() bool {
+// 	// without quotes inside (symbol '"')
+// 	return p.Any('"', '"')
+// }
+
+// func (p *Parser) Rvalue() bool {
+// 	if !p.Entity(false) || !p.String() {
+// 		return p.eof
+// 	}
+// 	return true
+// }
 
 // // input data is a line without '\n'
 // // rule := space lvalue space ":=" rvalues
@@ -253,20 +305,20 @@ func (p *Parser) Rvalue() bool {
 // 	return rules, nil
 // }
 
-func genCC(ptr **byte) func() byte {
-	return func() byte {
-		return **ptr
-	}
-}
+// func genCC(ptr **byte) func() byte {
+// 	return func() byte {
+// 		return **ptr
+// 	}
+// }
 
-func genGC(line []byte) (func(), *byte) {
-	i := 0
-	ptr := &line[0]
-	return func() {
-		if i >= len(line) {
-			return
-		}
-		i++
-		ptr = &line[i]
-	}, ptr
-}
+// func genGC(line []byte) (func(), *byte) {
+// 	i := 0
+// 	ptr := &line[0]
+// 	return func() {
+// 		if i >= len(line) {
+// 			return
+// 		}
+// 		i++
+// 		ptr = &line[i]
+// 	}, ptr
+// }

@@ -1,35 +1,17 @@
 package main
 
-// func any(p *Parser, end byte) func() bool {
-// 	return func() bool {
-// 		for p.cc() != end {
-// 			p.gc()
-// 		}
-// 		p.gc()
-// 		return p.eof
-// 	}
-// }
+func termStr(s string, it *Iterator) tFunc {
+	return nil
+}
 
-// func str(p *Parser, s []byte) func() bool {
-// 	return func() bool {
-// 		for _, b := range s {
-// 			if b != p.cc() {
-// 				return true
-// 			}
-// 			p.gc()
-// 		}
-// 		return p.eof
-// 	}
-// }
+func termID(it *Iterator) tFunc {
+	return nil
+}
 
-// /*
+func termEmpty(it *Iterator) tFunc {
+	return nil
+}
 
-// 	rules for BNF -> genFSM -> BFSM
-
-// 	generate parser:
-// 	input: BNF data
-// 	BNF -> BFSM -> Rules -> FSM
-// 	output:
-// 	FSM(data)
-
-// */
+func termAnyQuoted(it *Iterator) tFunc {
+	return nil
+}

@@ -139,3 +139,28 @@ func TestWithExec3(t *testing.T) {
 	assert(t, !ret, "ret true")
 	assert(t, n == 3, fmt.Sprintf("n != 3; n = %d", n))
 }
+
+func TestExecuteRecursive1(t *testing.T) {
+	n := 0
+	rules := []Rule{
+		{term{typ: 'N', name: "S"}, []term{
+			{typ: 'L', name: "A"},
+		}},
+		{term{typ: 'L', name: "A"}, []term{
+			{'T', "Terminal", func() bool {
+				if n >= 3 {
+					return false
+				}
+				n++
+				fmt.Println("A")
+				return true
+			}},
+			{typ: 'L', name: "A"},
+		}},
+	}
+	f, err := generateFunction(rules)
+	assert(t, err == nil, err)
+	ret := execute(f)
+	assert(t, !ret, "ret true")
+	assert(t, n == 3, fmt.Sprintf("n != 3; n = %d", n))
+}

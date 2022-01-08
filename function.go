@@ -20,7 +20,7 @@ func (f *function) call() bool {
 }
 
 func (f *function) isTerminal() bool {
-	return f.typ == 'T' && f.terminal != nil
+	return f.typ == 'T' //&& f.terminal != nil
 }
 
 func (f *function) hasNext(current int) bool {
@@ -33,9 +33,9 @@ func (f *function) existFunc(current int) bool {
 
 func recPrint(f *function, i int) {
 	if f.isTerminal() {
-		fmt.Printf("%s\n", f.name)
+		fmt.Printf("%s [T]\n", f.name)
 	} else {
-		fmt.Printf("%s--\n", f.name)
+		fmt.Printf("%s-- [%c]\n", f.name, f.typ)
 	}
 	for _, subf := range f.funcs {
 		fmt.Printf("\t")
@@ -43,7 +43,11 @@ func recPrint(f *function, i int) {
 			fmt.Printf("\t")
 		}
 		fmt.Printf("-")
-		recPrint(subf, i+1)
+		if subf.name != f.name {
+			recPrint(subf, i+1)
+		} else {
+			fmt.Printf("%s\n", f.name)
+		}
 	}
 }
 func printTree(f *function) {

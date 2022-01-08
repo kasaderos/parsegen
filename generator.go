@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 )
 
 type term struct {
@@ -91,7 +92,7 @@ func generateFunction(rules []Rule) (*function, error) {
 				}
 			}
 			if !found {
-				return nil, errors.New("not resolved entity")
+				return nil, errors.New(fmt.Sprintf("not resolved entity %s", subf.name))
 			}
 			f.funcs[i] = subf
 		}
