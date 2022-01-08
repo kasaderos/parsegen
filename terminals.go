@@ -1,17 +1,28 @@
 package main
 
-func termStr(s string, it *Iterator) tFunc {
+func termStr(s string) tFunc {
+	b := []byte(s)
+	return func(it *Iterator) bool {
+		for _, c := range b {
+			if c != it.cc() {
+				return true
+			}
+			it.gc()
+		}
+		return false
+	}
+}
+
+func termID() tFunc {
 	return nil
 }
 
-func termID(it *Iterator) tFunc {
-	return nil
+func termEmpty() tFunc {
+	return func(it *Iterator) bool {
+		return !it.eof
+	}
 }
 
-func termEmpty(it *Iterator) tFunc {
-	return nil
-}
-
-func termAnyQuoted(it *Iterator) tFunc {
+func termAnyQuoted() tFunc {
 	return nil
 }

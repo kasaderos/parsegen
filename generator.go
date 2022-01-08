@@ -11,9 +11,29 @@ type term struct {
 	terminal tFunc
 }
 
+type BNFData struct{}
+
 type Rule struct {
 	lvalue term // non-terminal
 	rvalue []term
+}
+
+func genParser(pd *ParsedData) (*function, error) {
+	rules, err := generateRules(&BNFData{})
+	if err != nil {
+		return nil, err
+	}
+
+	f, err := generateFunction(rules)
+	if err != nil {
+		return nil, err
+	}
+
+	return f, nil
+}
+
+func generateRules(bnfData *BNFData) ([]Rule, error) {
+	return nil, nil
 }
 
 // syntax analyzer

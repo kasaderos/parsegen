@@ -4,7 +4,7 @@ import "fmt"
 
 var S = function{}
 
-type tFunc func() bool
+type tFunc func(*Iterator) bool
 
 // lvalue = rvalue ~
 // function = instructions
@@ -15,8 +15,8 @@ type function struct {
 	funcs    []*function
 }
 
-func (f *function) call() bool {
-	return f.terminal()
+func (f *function) call(it *Iterator) bool {
+	return f.terminal(it)
 }
 
 func (f *function) isTerminal() bool {

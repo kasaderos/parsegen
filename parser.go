@@ -1,27 +1,87 @@
 package main
 
-type Iterator struct {
+import "errors"
+
+type Parser struct {
+	f *function
 }
 
-func bnfparser(it *Iterator) *function {
+func NewParser(f *ParsedData) *Parser {
+	return nil
+}
+
+func (p *Parser) Parse(data []byte) (*ParsedData, error) {
+	dataIt, err := NewIterator(data)
+	if err != nil {
+		return nil, err
+	}
+
+	if execute(p.f, dataIt) {
+		return nil, errors.New("exec data error")
+	}
+	return dataIt.parsed, nil
+}
+
+type Iterator struct {
+	data []byte
+	curr byte
+	ind  int
+	eof  bool
+
+	parsed *ParsedData
+}
+
+func NewIterator(data []byte) (*Iterator, error) {
+	return nil, nil
+}
+
+func (it *Iterator) gc() {
+	if it.ind >= len(it.data) {
+		it.eof = true
+		return
+	}
+	it.ind++
+}
+
+func (it *Iterator) cc() byte {
+	return it.curr
+}
+
+func generateParser(bnf []byte) (*Parser, error) {
+	it, err := NewIterator(bnf)
+	if err != nil {
+		return nil, err
+	}
+
+	f, _ := bnfparser(it)
+
+	if execute(f, it) {
+		// TODO add errors for exec
+		return nil, errors.New("exec bnf error")
+	}
+
+	return NewParser(it.parsed), nil
+}
+
+func bnfparser(it *Iterator) (*function, error) {
 	rules := []Rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: "rule"},
 		}},
 		{term{typ: 'N', name: "rule"}, []term{
 			{typ: 'L', name: "lvalue"},
-			{typ: 'T', name: "assign", terminal: termStr("=", it)},
-			{typ: 'N', name: "expr", terminal: termStr("=", it)},
-			{typ: 'T', name: "end", terminal: termStr(";", it)},
+			{typ: 'T', name: "assign", terminal: termStr("=")},
+			{typ: 'N', name: "expr", terminal: termStr("=")},
+			{typ: 'T', name: "end", terminal: termStr(";")},
 		}},
 		{term{typ: 'L', name: "lvalue"}, []term{
-			{typ: 'T', name: "lid", terminal: termID(it)},
+			{typ: 'T', name: "lid", terminal: termID()},
 			{typ: 'N', name: "highlighted"},
 		}},
 		{term{typ: 'N', name: "highlighted"}, []term{
-			{typ: 'T', name: "openH", terminal: termStr(">", it)},
-			{typ: 'T', name: "lid", terminal: termID(it)},
-			{typ: 'T', name: "openC", terminal: termStr(">", it)},
+			{typ: 'T', name: "openH", terminal: termStr(">")},
+			{typ: 'T', name: "lid", terminal: termID()},
+			{typ: 'T', name: "openC", terminal: termStr(">")},
 		}},
 
 		{term{typ: 'N', name: "expr"}, []term{
@@ -34,28 +94,28 @@ func bnfparser(it *Iterator) *function {
 		}},
 		{term{typ: 'L', name: "exprT1"}, []term{
 			{typ: 'L', name: "rvalue"},
-			{typ: 'T', name: "empty", terminal: termEmpty(it)},
+			{typ: 'T', name: "empty", terminal: termEmpty()},
 			{typ: 'L', name: "exprT1"},
 		}},
 		{term{typ: 'L', name: "exprT2"}, []term{
 			{typ: 'N', name: "rvalue1"},
-			{typ: 'T', name: "empty", terminal: termEmpty(it)},
+			{typ: 'T', name: "empty", terminal: termEmpty()},
 			{typ: 'L', name: "exprT2"},
 		}},
 		{term{typ: 'N', name: "rvalue1"}, []term{
-			{typ: 'T', name: "signOr", terminal: termStr("|", it)},
+			{typ: 'T', name: "signOr", terminal: termStr("|")},
 			{typ: 'L', name: "rvalue"},
 		}},
 		{term{typ: 'L', name: "rvalue"}, []term{
-			{typ: 'T', name: "rid", terminal: termID(it)},
-			{typ: 'T', name: "string", terminal: termAnyQuoted(it)},
+			{typ: 'T', name: "rid", terminal: termID()},
+			{typ: 'T', name: "string", terminal: termAnyQuoted()},
 		}},
 	}
 	f, err := generateFunction(rules)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return f
+	return f, nil
 }
 
 // var ErrEmptyLine = errors.New("empty line")

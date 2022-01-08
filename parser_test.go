@@ -3,6 +3,7 @@ package main
 import "testing"
 
 func TestParser(t *testing.T) {
-	f := bnfparser(nil)
+	f, err := bnfparser(nil)
+	assert(t, err == nil, err)
 	printTree(f)
 }
