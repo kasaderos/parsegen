@@ -73,7 +73,7 @@ func generateFunction(rules []Rule) (*function, error) {
 			// find subf from all funcs
 			for _, fn := range funcs {
 				// if it's found append
-				if subf.name == fn.name {
+				if subf.name == fn.name && subf.typ == fn.typ {
 					subf.funcs = append(subf.funcs, fn.funcs...)
 					found = true
 					break
