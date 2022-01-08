@@ -5,9 +5,11 @@ import (
 )
 
 func assert(t *testing.T, b bool, s ...interface{}) {
-	err, ok := s[0].(error)
-	if ok {
-		t.Errorf("assert failed %v\n", err.Error())
+	if s != nil {
+		err, ok := s[0].(error)
+		if ok {
+			t.Errorf("assert failed %v\n", err.Error())
+		}
 	}
 	if !b {
 		t.Errorf("assert failed %v\n", s)
@@ -34,16 +36,19 @@ func TestExecuteComplex1(t *testing.T) {
 		typ: 'N',
 		funcs: []*function{
 			{typ: 'N', funcs: []*function{
-				{typ: 'N', funcs: []*function{
-					{typ: 'T', terminal: func() bool { n++; return false }},
-				}},
-			},
-			},
+				{typ: 'T', terminal: func() bool { n++; return false }},
+			}},
+			{typ: 'N', funcs: []*function{
+				{typ: 'T', terminal: func() bool { n++; return false }},
+			}},
+			{typ: 'N', funcs: []*function{
+				{typ: 'T', terminal: func() bool { n++; return false }},
+			}},
 			{typ: 'T', terminal: func() bool { n++; return false }},
 		},
 	}
 	ret := execute(&f)
-	assert(t, n == 2)
+	assert(t, n == 4, "n != 4")
 	assert(t, !ret)
 }
 

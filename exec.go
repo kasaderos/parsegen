@@ -17,7 +17,8 @@ func back(stack *Stack, ret *bool) {
 			}
 		case 'N':
 			if !*ret && f.hasNext(i) {
-				stack.Push(Frame{f.funcs[i+1], i + 1})
+				stack.Push(Frame{f, i + 1})
+				stack.Push(Frame{f.funcs[i+1], 0})
 				return
 			}
 		}
