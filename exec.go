@@ -25,7 +25,7 @@ func back(stack *Stack, ret *bool) {
 	}
 }
 
-func execute(f *function, it *Iterator) bool {
+func execute(f *function, it Iterator) bool {
 	stack := &Stack{}
 	stack.Push(Frame{f, 0})
 	// register of return value

@@ -13,20 +13,20 @@ func TestGenerateFunction1(t *testing.T) {
 			{typ: 'N', name: "C"},
 		}},
 		{term{typ: 'N', name: "A"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { /*fmt.Println("A");*/ return false }},
+			{'T', "Terminal", func(it Iterator) bool { /*fmt.Println("A");*/ return false }},
 		}},
 		{term{typ: 'N', name: "B"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { /*fmt.Println("B");*/ return false }},
+			{'T', "Terminal", func(it Iterator) bool { /*fmt.Println("B");*/ return false }},
 		}},
 		{term{typ: 'N', name: "C"}, []term{
 			{typ: 'N', name: "D"},
 			{typ: 'N', name: "E"},
 		}},
 		{term{typ: 'N', name: "D"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { /*fmt.Println("D");*/ return false }},
+			{'T', "Terminal", func(it Iterator) bool { /*fmt.Println("D");*/ return false }},
 		}},
 		{term{typ: 'N', name: "E"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { /*fmt.Println("E");*/ return false }},
+			{'T', "Terminal", func(it Iterator) bool { /*fmt.Println("E");*/ return false }},
 		}},
 	}
 	f, err := generateFunction(rules)
@@ -43,14 +43,14 @@ func TestGenerateFunction2(t *testing.T) {
 			{typ: 'N', name: "B"},
 		}},
 		{term{typ: 'L', name: "A"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { /*fmt.Println("A");*/ return false }},
+			{'T', "Terminal", func(it Iterator) bool { /*fmt.Println("A");*/ return false }},
 			{typ: 'N', name: "C"},
 		}},
 		{term{typ: 'N', name: "B"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { /*fmt.Println("B");*/ return false }},
+			{'T', "Terminal", func(it Iterator) bool { /*fmt.Println("B");*/ return false }},
 		}},
 		{term{typ: 'N', name: "C"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { /*fmt.Println("B");*/ return false }},
+			{'T', "Terminal", func(it Iterator) bool { /*fmt.Println("B");*/ return false }},
 		}},
 	}
 	f, err := generateFunction(rules)
@@ -67,20 +67,20 @@ func TestWithExec1(t *testing.T) {
 			{typ: 'N', name: "C"},
 		}},
 		{term{typ: 'N', name: "A"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { n++; return false }},
+			{'T', "Terminal", func(it Iterator) bool { n++; return false }},
 		}},
 		{term{typ: 'N', name: "B"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { n++; return false }},
+			{'T', "Terminal", func(it Iterator) bool { n++; return false }},
 		}},
 		{term{typ: 'N', name: "C"}, []term{
 			{typ: 'N', name: "D"},
 			{typ: 'N', name: "E"},
 		}},
 		{term{typ: 'N', name: "D"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { n++; return false }},
+			{'T', "Terminal", func(it Iterator) bool { n++; return false }},
 		}},
 		{term{typ: 'N', name: "E"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { n++; return false }},
+			{'T', "Terminal", func(it Iterator) bool { n++; return false }},
 		}},
 	}
 	f, err := generateFunction(rules)
@@ -98,14 +98,14 @@ func TestWithExec2(t *testing.T) {
 			{typ: 'N', name: "B"},
 		}},
 		{term{typ: 'L', name: "A"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { n++; fmt.Println("A"); return false }},
+			{'T', "Terminal", func(it Iterator) bool { n++; fmt.Println("A"); return false }},
 			{typ: 'N', name: "C"},
 		}},
 		{term{typ: 'N', name: "C"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { fmt.Println("C"); return false }},
+			{'T', "Terminal", func(it Iterator) bool { fmt.Println("C"); return false }},
 		}},
 		{term{typ: 'N', name: "B"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { n++; fmt.Println("B"); return false }},
+			{'T', "Terminal", func(it Iterator) bool { n++; fmt.Println("B"); return false }},
 		}},
 	}
 	f, err := generateFunction(rules)
@@ -123,14 +123,14 @@ func TestWithExec3(t *testing.T) {
 			{typ: 'N', name: "B"},
 		}},
 		{term{typ: 'L', name: "A"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { n++; fmt.Println("A"); return true }},
+			{'T', "Terminal", func(it Iterator) bool { n++; fmt.Println("A"); return true }},
 			{typ: 'N', name: "C"},
 		}},
 		{term{typ: 'N', name: "C"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { n++; fmt.Println("C"); return false }},
+			{'T', "Terminal", func(it Iterator) bool { n++; fmt.Println("C"); return false }},
 		}},
 		{term{typ: 'N', name: "B"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool { n++; fmt.Println("B"); return false }},
+			{'T', "Terminal", func(it Iterator) bool { n++; fmt.Println("B"); return false }},
 		}},
 	}
 	f, err := generateFunction(rules)
@@ -147,7 +147,7 @@ func TestExecuteRecursive1(t *testing.T) {
 			{typ: 'L', name: "A"},
 		}},
 		{term{typ: 'L', name: "A"}, []term{
-			{'T', "Terminal", func(it *Iterator) bool {
+			{'T', "Terminal", func(it Iterator) bool {
 				if n >= 3 {
 					return false
 				}
