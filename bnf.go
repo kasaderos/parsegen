@@ -62,6 +62,9 @@ package main
 //       R = A | R1 ;
 //       R1 = A | R1;
 //  8. выделяемые сущности в <>
+//      данные выделенных байт есть начало и конец lvalue
+//                  lvalue = rvalue1 rvalue2
+//                  выделяется все что входит [rvalue1, rvalue2]
 //	9. Пример BNF
 //      (* пробельные символы игнорируются заисключением пробелов в строках)
 //      определение правила согласно нашему BNF:
@@ -78,7 +81,18 @@ package main
 //
 //      где id - идентификатор из латинских букв и чисел (ид начинается с лат букв)
 //          string - любой набор символов в кавычках "" (example "This is a string")
+/*
 
+ */
+//      rule = lvalue "=" expr ";" ;
+//      expr = rvalue expr1
+//      expr1 = exprT1 | exprT2 ;
+//      exprT1 = rvalue | empty | exprT1;
+//      exprT2 = rvalue1 | empty | exprT2 ;
+//      rvalue1 = "|" rvalue
+//      lvalue = highlighted | id ;
+// 		highlighted = "<" id ">" ;
+//      rvalue = id | string
 /*
 	label:
 		name string
@@ -99,3 +113,58 @@ package main
 		bool                 - if true slice initial data, else allocate memory for each
 	) map[entity][]lex
 */
+
+func bnfparser(it Iterator) (*function, error) {
+	rules := []Rule{
+		{term{typ: 'N', name: "S"}, []term{
+			{typ: 'N', name: "rule"},
+		}},
+		{term{typ: 'N', name: "rule"}, []term{
+			{typ: 'L', name: "lvalue"},
+			{typ: 'T', name: "assign", terminal: termStr("=")},
+			{typ: 'N', name: "expr", terminal: termStr("=")},
+			{typ: 'T', name: "end", terminal: termStr(";")},
+		}},
+		{term{typ: 'L', name: "lvalue"}, []term{
+			{typ: 'T', name: "lid", terminal: termID()},
+			{typ: 'N', name: "highlighted"},
+		}},
+		{term{typ: 'N', name: "highlighted"}, []term{
+			{typ: 'T', name: "openH", terminal: termStr(">")},
+			{typ: 'T', name: "lid", terminal: termID()},
+			{typ: 'T', name: "openC", terminal: termStr(">")},
+		}},
+
+		{term{typ: 'N', name: "expr"}, []term{
+			{typ: 'L', name: "rvalue"},
+			{typ: 'L', name: "expr1"},
+		}},
+		{term{typ: 'L', name: "expr1"}, []term{
+			{typ: 'L', name: "exprT1"},
+			{typ: 'L', name: "exprT2"},
+		}},
+		{term{typ: 'L', name: "exprT1"}, []term{
+			{typ: 'L', name: "rvalue"},
+			{typ: 'T', name: "empty", terminal: termEmpty()},
+			{typ: 'L', name: "exprT1"},
+		}},
+		{term{typ: 'L', name: "exprT2"}, []term{
+			{typ: 'N', name: "rvalue1"},
+			{typ: 'T', name: "empty", terminal: termEmpty()},
+			{typ: 'L', name: "exprT2"},
+		}},
+		{term{typ: 'N', name: "rvalue1"}, []term{
+			{typ: 'T', name: "signOr", terminal: termStr("|")},
+			{typ: 'L', name: "rvalue"},
+		}},
+		{term{typ: 'L', name: "rvalue"}, []term{
+			{typ: 'T', name: "rid", terminal: termID()},
+			{typ: 'T', name: "string", terminal: termAnyQuoted()},
+		}},
+	}
+	f, err := generateFunction(rules)
+	if err != nil {
+		return nil, err
+	}
+	return f, nil
+}

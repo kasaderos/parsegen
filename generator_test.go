@@ -163,4 +163,5 @@ func TestExecuteRecursive1(t *testing.T) {
 	ret := execute(f, nil)
 	assert(t, !ret, "ret true")
 	assert(t, n == 3, fmt.Sprintf("n != 3; n = %d", n))
+	printTree(f)
 }

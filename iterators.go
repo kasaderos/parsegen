@@ -26,6 +26,7 @@ type CommonIterator struct {
 type Iterator interface {
 	GC()
 	CC() byte
+	GP() int
 	EOF() bool
 	ParsedData() *ParsedData
 }
@@ -35,9 +36,9 @@ func NewIterator(data []byte, includeSpaces bool) (Iterator, error) {
 		return nil, errors.New("data is empty")
 	}
 	if includeSpaces {
-		return &CommonIterator{data: data, curr: data[0], parsed: &ParsedData{}}, nil
+		return &CommonIterator{data: data, curr: data[0], parsed: &ParsedData{data, make(map[string][]label)}}, nil
 	}
-	return &SimpleIterator{data: data, curr: data[0], parsed: &ParsedData{}}, nil
+	return &SimpleIterator{data: data, curr: data[0], parsed: &ParsedData{data, make(map[string][]label)}}, nil
 }
 
 // with ignoring spaces
@@ -46,6 +47,7 @@ func (it *SimpleIterator) GC() {
 	for !it.eof {
 		if it.ind >= len(it.data) {
 			it.eof = true
+			it.ind = len(it.data)
 			return
 		}
 		if !unicode.IsSpace(rune(it.CC())) {
@@ -67,6 +69,10 @@ func (it *SimpleIterator) CC() byte {
 	return it.curr
 }
 
+func (it *SimpleIterator) GP() int {
+	return it.ind
+}
+
 func (it *CommonIterator) GC() {
 	if it.ind >= len(it.data) {
 		it.eof = true
@@ -85,4 +91,8 @@ func (it *CommonIterator) ParsedData() *ParsedData {
 }
 func (it *CommonIterator) CC() byte {
 	return it.curr
+}
+
+func (it *CommonIterator) GP() int {
+	return it.ind
 }

@@ -13,6 +13,9 @@ type function struct {
 	name     string
 	terminal tFunc
 	funcs    []*function
+
+	marked       bool
+	starts, ends []int
 }
 
 func (f *function) call(it Iterator) bool {
@@ -29,6 +32,14 @@ func (f *function) hasNext(current int) bool {
 
 func (f *function) existFunc(current int) bool {
 	return current < len(f.funcs)
+}
+
+func (f *function) appendStarts(i int) {
+	f.starts = append(f.starts, i)
+}
+
+func (f *function) appendEnds(j int) {
+	f.ends = append(f.ends, j)
 }
 
 func recPrint(f *function, i int) {

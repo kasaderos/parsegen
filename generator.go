@@ -18,7 +18,7 @@ type Rule struct {
 	rvalue []term
 }
 
-func genParser(pd *ParsedData) (*function, error) {
+func generateParser(pd *ParsedData) (*Parser, error) {
 	rules, err := generateRules(&BNFData{})
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func genParser(pd *ParsedData) (*function, error) {
 		return nil, err
 	}
 
-	return f, nil
+	return &Parser{f}, nil
 }
 
 func generateRules(bnfData *BNFData) ([]Rule, error) {
@@ -99,6 +99,9 @@ func generateFunction(rules []Rule) (*function, error) {
 					found = true
 					break
 				}
+				// TODO below code don't work because top does this
+				// but without checks
+
 				// if it's the same func it must be in the end
 				if subf.name == f.name {
 					// must be typ L

@@ -11,9 +11,10 @@ type lex struct {
 }
 
 type ParsedData struct {
-	data []byte
+	data   []byte
+	labels map[string][]label // lvalue : labels
 }
 
-func (pd *ParsedData) GetParsedData(entities []string, strIncluded bool, alloc bool) map[string][]lex {
+func (pd *ParsedData) GetLexes(entities []string, strIncluded bool, alloc bool) map[string][]lex {
 	return nil
 }
