@@ -1,5 +1,7 @@
 package main
 
+import "testing"
+
 func TestParsing(t *testing.T) {
 	// TODO
 	// generate rule with terminals

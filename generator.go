@@ -8,6 +8,7 @@ import (
 type term struct {
 	typ      byte
 	name     string
+	marked   bool
 	terminal tFunc
 }
 
@@ -18,7 +19,8 @@ type Rule struct {
 	rvalue []term
 }
 
-func generateParser(pd *ParsedData) (*Parser, error) {
+func generateParser(lexes map[string][]lex) (*Parser, error) {
+	// TODO BNFData
 	rules, err := generateRules(&BNFData{})
 	if err != nil {
 		return nil, err
@@ -45,11 +47,13 @@ func generateFunction(rules []Rule) (*function, error) {
 		f := &function{}
 		f.typ = rule.lvalue.typ
 		f.name = rule.lvalue.name
+		f.marked = rule.lvalue.marked
 		for _, rvalue := range rule.rvalue {
 			f.funcs = append(f.funcs, &function{
 				typ:      rvalue.typ,
 				name:     rvalue.name,
 				terminal: rvalue.terminal,
+				marked:   rvalue.marked,
 			})
 		}
 		funcs = append(funcs, f)

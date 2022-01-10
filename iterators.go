@@ -2,25 +2,33 @@ package main
 
 import (
 	"errors"
-	"unicode"
+	"log"
 )
 
-type SimpleIterator struct {
-	data []byte
+type IteratorStruct struct {
 	curr byte
 	ind  int
 	eof  bool
+	err  error
+}
 
-	parsed *ParsedData
+func (it *IteratorStruct) SetError(s string) {
+	it.err = errors.New(s)
+	log.Println(it.err)
+}
+
+func (it *IteratorStruct) HasError() bool {
+	return it.err != nil
+}
+
+type SimpleIterator struct {
+	*ParsedData
+	IteratorStruct
 }
 
 type CommonIterator struct {
-	data []byte
-	curr byte
-	ind  int
-	eof  bool
-
-	parsed *ParsedData
+	*ParsedData
+	IteratorStruct
 }
 
 type Iterator interface {
@@ -28,43 +36,55 @@ type Iterator interface {
 	CC() byte
 	GP() int
 	EOF() bool
-	ParsedData() *ParsedData
+	SetError(string)
+	HasError() bool
+	Labeler
+	Data
 }
 
 func NewIterator(data []byte, includeSpaces bool) (Iterator, error) {
 	if len(data) == 0 {
 		return nil, errors.New("data is empty")
 	}
-	if includeSpaces {
-		return &CommonIterator{data: data, curr: data[0], parsed: &ParsedData{data, make(map[string][]label)}}, nil
+	it := IteratorStruct{
+		curr: data[0],
 	}
-	return &SimpleIterator{data: data, curr: data[0], parsed: &ParsedData{data, make(map[string][]label)}}, nil
+	pd := &ParsedData{data, make(map[string]labels)}
+	if includeSpaces {
+		return &CommonIterator{pd, it}, nil
+	}
+	return &SimpleIterator{pd, it}, nil
+}
+
+func IsSpace(b byte) bool {
+	return b == ' ' || b == '\n' || b == '\t'
 }
 
 // with ignoring spaces
 func (it *SimpleIterator) GC() {
-	it.ind++
+	if it.eof {
+		return
+	}
+	ind := it.ind
 	for !it.eof {
-		if it.ind >= len(it.data) {
+		if it.ind+1 >= len(it.data) {
 			it.eof = true
-			it.ind = len(it.data)
+			// not included
+			it.ind = ind + 1
 			return
 		}
-		if !unicode.IsSpace(rune(it.CC())) {
+		it.ind++
+		if !IsSpace(it.data[it.ind]) {
 			break
 		}
-		it.ind++
 	}
+	it.curr = it.data[it.ind]
 }
 
 func (it *SimpleIterator) EOF() bool {
 	return it.eof
 }
 
-func (it *SimpleIterator) ParsedData() *ParsedData {
-	return it.parsed
-
-}
 func (it *SimpleIterator) CC() byte {
 	return it.curr
 }
@@ -74,21 +94,19 @@ func (it *SimpleIterator) GP() int {
 }
 
 func (it *CommonIterator) GC() {
-	if it.ind >= len(it.data) {
+	if it.ind+1 >= len(it.data) {
 		it.eof = true
+		it.ind = it.ind + 1
 		return
 	}
 	it.ind++
+	it.curr = it.data[it.ind]
 }
 
 func (it *CommonIterator) EOF() bool {
 	return it.eof
 }
 
-func (it *CommonIterator) ParsedData() *ParsedData {
-	return it.parsed
-
-}
 func (it *CommonIterator) CC() byte {
 	return it.curr
 }

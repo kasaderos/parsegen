@@ -7,23 +7,23 @@ func back(stack *Stack, it Iterator, ret *bool) {
 		stack.Pop()
 		switch f.typ {
 		case 'L':
-			if f.marked {
-				f.appendEnds(it.GP())
-			}
 			if *ret && f.hasNext(i) {
 				*ret = false
 				stack.Push(Frame{f, i + 1})
 				stack.Push(Frame{f.funcs[i+1], 0})
 				return
 			}
-		case 'N':
 			if f.marked {
-				f.appendEnds(it.GP())
+				it.SetEnd(f.name, it.GP())
 			}
+		case 'N':
 			if !*ret && f.hasNext(i) {
 				stack.Push(Frame{f, i + 1})
 				stack.Push(Frame{f.funcs[i+1], 0})
 				return
+			}
+			if f.marked {
+				it.SetEnd(f.name, it.GP())
 			}
 		}
 	}
@@ -41,7 +41,7 @@ func execute(f *function, it Iterator) bool {
 		switch f.typ {
 		case 'N', 'L':
 			if f.marked {
-				f.appendStarts(it.GP())
+				it.SetStart(f.name, it.GP())
 			}
 			// if non terminal is not empty push
 			if f.existFunc(i) {

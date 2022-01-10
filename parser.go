@@ -9,8 +9,8 @@ type Parser struct {
 }
 
 // TODO generate parser from ParsedData that contains bnf lexes
-func NewParser(pd *ParsedData) (*Parser, error) {
-	return generateParser(pd)
+func NewParser(lexes map[string][]lex) (*Parser, error) {
+	return generateParser(lexes)
 }
 
 func (p *Parser) Parse(data []byte) (*ParsedData, error) {
@@ -22,7 +22,7 @@ func (p *Parser) Parse(data []byte) (*ParsedData, error) {
 	if execute(p.f, dataIt) {
 		return nil, errors.New("exec data error")
 	}
-	return dataIt.ParsedData(), nil
+	return dataIt.Data(), nil
 }
 
 func Generate(bnf []byte) (*Parser, error) {
@@ -38,5 +38,6 @@ func Generate(bnf []byte) (*Parser, error) {
 		return nil, errors.New("exec bnf error")
 	}
 
-	return NewParser(it.ParsedData())
+	// TODO
+	return NewParser(it.GetLexes([]string{"lvalue", "expr", "rvalue"}, false, false))
 }
