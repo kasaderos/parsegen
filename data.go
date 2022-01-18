@@ -19,8 +19,8 @@ type Data interface {
 }
 
 type Labeler interface {
-	SetStart(string, int)
-	SetEnd(string, int)
+	AddStart(string, int)
+	AddEnd(string, int)
 	GetLexes([]string, bool, bool) map[string][]lex
 }
 
@@ -28,13 +28,13 @@ func (pd *ParsedData) GetLexes(entities []string, strIncluded bool, alloc bool) 
 	return nil
 }
 
-func (pd *ParsedData) SetStart(name string, ind int) {
+func (pd *ParsedData) AddStart(name string, ind int) {
 	labels := pd.labels[name]
 	labels.i = append(labels.i, ind)
 	pd.labels[name] = labels
 }
 
-func (pd *ParsedData) SetEnd(name string, ind int) {
+func (pd *ParsedData) AddEnd(name string, ind int) {
 	labels := pd.labels[name]
 	labels.j = append(labels.j, ind)
 	pd.labels[name] = labels

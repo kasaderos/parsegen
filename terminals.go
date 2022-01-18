@@ -4,7 +4,11 @@ func termStr(s string) tFunc {
 	b := []byte(s)
 	return func(it Iterator) bool {
 		for _, c := range b {
-			if c != it.CC() || it.EOF() {
+			if c != it.CC() {
+				// log.Printf("Str[T]: not matched %c != %c", c, it.CC())
+				return true
+			}
+			if it.EOF() {
 				return true
 			}
 			it.GC()
@@ -29,7 +33,7 @@ func termID() tFunc {
 		}
 		// true if empty or eof
 		if i == it.GP() {
-			it.SetError("ID[T]: empty")
+			// it.SetError("ID[T]: empty")
 			return true
 		}
 		return it.EOF()
@@ -49,7 +53,7 @@ func termInteger() tFunc {
 			it.GC()
 		}
 		if i == it.GP() {
-			it.SetError("Integer[T]: empty")
+			// it.SetError("Integer[T]: empty")
 			return true
 		}
 		return it.EOF()
@@ -68,7 +72,7 @@ func termAny(end byte, includeEnd bool) tFunc {
 			it.GC()
 		}
 		if i == it.GP() {
-			it.SetError("Any[T]: empty")
+			// it.SetError("Any[T]: empty")
 			return true
 		}
 		return it.EOF()
@@ -78,7 +82,7 @@ func termAny(end byte, includeEnd bool) tFunc {
 func termAnyQuoted() tFunc {
 	return func(it Iterator) bool {
 		if it.CC() != '"' {
-			it.SetError("AnyQuoted[T]: not beginning quote")
+			// it.SetError("AnyQuoted[T]: not beginning quote")
 			return true
 		}
 		it.GC()
@@ -91,7 +95,7 @@ func termAnyQuoted() tFunc {
 		}
 		it.GC()
 		if i == it.GP()-1 {
-			it.SetError("AnyQuoted[T]: empty")
+			// it.SetError("AnyQuoted[T]: empty")
 			return true
 		}
 		return it.EOF()

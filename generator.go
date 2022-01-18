@@ -19,9 +19,9 @@ type Rule struct {
 	rvalue []term
 }
 
-func generateParser(lexes map[string][]lex) (*Parser, error) {
+func generateParser(it Iterator) (*Parser, error) {
 	// TODO BNFData
-	rules, err := generateRules(&BNFData{})
+	rules, err := generateRules(it)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,8 @@ func generateParser(lexes map[string][]lex) (*Parser, error) {
 	return &Parser{f}, nil
 }
 
-func generateRules(bnfData *BNFData) ([]Rule, error) {
+func generateRules(it Iterator) ([]Rule, error) {
+	fmt.Println(it.Data().labels)
 	return nil, nil
 }
 

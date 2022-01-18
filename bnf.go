@@ -57,10 +57,8 @@ package main
 //       R1 = A B ;
 //  7. если нужно определить цикл R = { A } (ноль и более раз A)
 //     то
-//       R = A | empty | R ;
-//     если 1 и более раз
-//       R = A | R1 ;
-//       R1 = A | R1;
+//       R = A | R ;
+//     рекурсия работает пока A возвращает false
 //  8. выделяемые сущности в <>
 //      данные выделенных байт есть начало и конец lvalue
 //                  lvalue = rvalue1 rvalue2
@@ -68,12 +66,12 @@ package main
 //	9. Пример BNF
 //      (* пробельные символы игнорируются заисключением пробелов в строках)
 //      определение правила согласно нашему BNF:
-//      S = rule
+//      S = rule | S
 //      rule = lvalue "=" expr ";" ;
 //      expr = rvalue expr1
 //      expr1 = exprT1 | exprT2 ;
-//      exprT1 = rvalue | empty | exprT1;
-//      exprT2 = rvalue1 | empty | exprT2 ;
+//      exprT1 = rvalue | exprT1;
+//      exprT2 = rvalue1 | exprT2 ;
 //      rvalue1 = "|" rvalue
 //      lvalue = highlighted | id ;
 // 		highlighted = "<" id ">" ;
@@ -116,50 +114,51 @@ package main
 
 func bnfparser(it Iterator) (*function, error) {
 	rules := []Rule{
-		{term{typ: 'N', name: "S"}, []term{
-			{typ: 'N', name: "rule"},
+		{term{typ: 'L', name: "S", marked: true}, []term{
+			{typ: 'N', name: "rule", marked: true},
+			{typ: 'L', name: "S", marked: true},
 		}},
-		{term{typ: 'N', name: "rule"}, []term{
-			{typ: 'L', name: "lvalue"},
-			{typ: 'T', name: "assign", terminal: termStr("=")},
-			{typ: 'N', name: "expr", terminal: termStr("=")},
-			{typ: 'T', name: "end", terminal: termStr(";")},
+		{term{typ: 'N', name: "rule", marked: true}, []term{
+			{typ: 'L', name: "lvalue", marked: true},
+			{typ: 'T', name: "assign", marked: true, terminal: termStr("=")},
+			{typ: 'N', name: "expr", marked: true},
+			{typ: 'T', name: "end", marked: true, terminal: termStr(";")},
 		}},
-		{term{typ: 'L', name: "lvalue"}, []term{
-			{typ: 'T', name: "lid", terminal: termID()},
-			{typ: 'N', name: "highlighted"},
+		{term{typ: 'L', name: "lvalue", marked: true}, []term{
+			{typ: 'T', name: "lid", marked: true, terminal: termID()},
+			{typ: 'N', name: "highlighted", marked: true},
 		}},
-		{term{typ: 'N', name: "highlighted"}, []term{
-			{typ: 'T', name: "openH", terminal: termStr(">")},
-			{typ: 'T', name: "lid", terminal: termID()},
-			{typ: 'T', name: "openC", terminal: termStr(">")},
+		{term{typ: 'N', name: "highlighted", marked: true}, []term{
+			{typ: 'T', name: "openH", marked: true, terminal: termStr("<")},
+			{typ: 'T', name: "lid", marked: true, terminal: termID()},
+			{typ: 'T', name: "openC", marked: true, terminal: termStr(">")},
 		}},
 
-		{term{typ: 'N', name: "expr"}, []term{
-			{typ: 'L', name: "rvalue"},
-			{typ: 'L', name: "expr1"},
+		{term{typ: 'N', name: "expr", marked: true}, []term{
+			{typ: 'L', name: "rvalue", marked: true},
+			{typ: 'L', name: "expr1", marked: true},
 		}},
-		{term{typ: 'L', name: "expr1"}, []term{
-			{typ: 'L', name: "exprT1"},
-			{typ: 'L', name: "exprT2"},
+		{term{typ: 'L', name: "expr1", marked: true}, []term{
+			{typ: 'L', name: "exprT1", marked: true},
+			{typ: 'L', name: "exprT2", marked: true},
 		}},
-		{term{typ: 'L', name: "exprT1"}, []term{
-			{typ: 'L', name: "rvalue"},
+		{term{typ: 'L', name: "exprT1", marked: true}, []term{
+			{typ: 'L', name: "rvalue", marked: true},
 			{typ: 'T', name: "empty", terminal: termEmpty()},
-			{typ: 'L', name: "exprT1"},
+			{typ: 'L', name: "exprT1", marked: true},
 		}},
-		{term{typ: 'L', name: "exprT2"}, []term{
-			{typ: 'N', name: "rvalue1"},
+		{term{typ: 'L', name: "exprT2", marked: true}, []term{
+			{typ: 'N', name: "rvalue1", marked: true},
 			{typ: 'T', name: "empty", terminal: termEmpty()},
-			{typ: 'L', name: "exprT2"},
+			{typ: 'L', name: "exprT2", marked: true},
 		}},
-		{term{typ: 'N', name: "rvalue1"}, []term{
-			{typ: 'T', name: "signOr", terminal: termStr("|")},
-			{typ: 'L', name: "rvalue"},
+		{term{typ: 'N', name: "rvalue1", marked: true}, []term{
+			{typ: 'T', name: "signOr", marked: true, terminal: termStr("|")},
+			{typ: 'L', name: "rvalue", marked: true},
 		}},
-		{term{typ: 'L', name: "rvalue"}, []term{
-			{typ: 'T', name: "rid", terminal: termID()},
-			{typ: 'T', name: "string", terminal: termAnyQuoted()},
+		{term{typ: 'L', name: "rvalue", marked: true}, []term{
+			{typ: 'T', name: "rid", marked: true, terminal: termID()},
+			{typ: 'T', name: "string", marked: true, terminal: termAnyQuoted()},
 		}},
 	}
 	f, err := generateFunction(rules)

@@ -25,7 +25,7 @@ func TestStr(t *testing.T) {
 	i := it.Data().labels[name].i[0]
 	j := it.Data().labels[name].j[0]
 	assert(t, i == 0, i)
-	assert(t, j == 7, j)
+	assert(t, j == 8, j)
 	assert(t, !it.HasError())
 }
 
@@ -49,7 +49,7 @@ func TestAnyQuoted(t *testing.T) {
 	i := it.Data().labels[name].i[0]
 	j := it.Data().labels[name].j[0]
 	assert(t, i == 0, i)
-	assert(t, j == 9, j)
+	assert(t, j == 10, j)
 	assert(t, !it.HasError())
 }
 
@@ -73,7 +73,7 @@ func TestID(t *testing.T) {
 	i := it.Data().labels[name].i[0]
 	j := it.Data().labels[name].j[0]
 	assert(t, i == 0, i)
-	assert(t, j == 3, j)
+	assert(t, j == 4, j)
 	assert(t, !it.HasError())
 }
 
@@ -111,12 +111,30 @@ func TestCombined1(t *testing.T) {
 
 func TestCombined2(t *testing.T) {
 	// TODO add bad tests and check error
-	s := "GET / 200 OK"
+	s := "GET dafadf 200 OK"
 	method := "Method"
 	url := "Url"
 	code := "Code"
 	space := "Space"
 	message := "Message"
+
+	// S = Method " " Url " " Code " " Message
+	// Method = AnySpace
+	// Url = AnySpace
+	// Code = Number
+	// Message = AnySpace
+
+	// S:
+	//   Method()
+	//   CheckStr(" ")
+	//   Url()
+	//   CheckStr(" ")
+	//   Code()
+	//   CheckStr(" ")
+	//   Message()
+
+	// Method:
+	//    AnySpace()
 
 	rules := []Rule{
 		{term{typ: 'N', name: "S"}, []term{

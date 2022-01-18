@@ -42,6 +42,10 @@ func (f *function) appendEnds(j int) {
 	f.ends = append(f.ends, j)
 }
 
+func (f *function) isRecursive() bool {
+	return len(f.funcs) > 1 && f.funcs[len(f.funcs)-1].name == f.name
+}
+
 func recPrint(f *function, i int) {
 	if f.isTerminal() {
 		fmt.Printf("%s [T]\n", f.name)

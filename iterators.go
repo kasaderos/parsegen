@@ -36,6 +36,7 @@ type Iterator interface {
 	CC() byte
 	GP() int
 	EOF() bool
+	BT(int)
 	SetError(string)
 	HasError() bool
 	Labeler
@@ -93,6 +94,9 @@ func (it *SimpleIterator) GP() int {
 	return it.ind
 }
 
+func (it *SimpleIterator) BT(ind int) {
+	it.ind = ind
+}
 func (it *CommonIterator) GC() {
 	if it.ind+1 >= len(it.data) {
 		it.eof = true
@@ -113,4 +117,8 @@ func (it *CommonIterator) CC() byte {
 
 func (it *CommonIterator) GP() int {
 	return it.ind
+}
+
+func (it *CommonIterator) BT(ind int) {
+	it.ind = ind
 }

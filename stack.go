@@ -3,8 +3,10 @@ package main
 import "fmt"
 
 type Frame struct {
-	f *function
-	i int
+	f     *function
+	i     int
+	start int
+	end   int
 }
 
 type Stack struct {

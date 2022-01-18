@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 )
 
 type Parser struct {
@@ -9,8 +10,8 @@ type Parser struct {
 }
 
 // TODO generate parser from ParsedData that contains bnf lexes
-func NewParser(lexes map[string][]lex) (*Parser, error) {
-	return generateParser(lexes)
+func NewParser(it Iterator) (*Parser, error) {
+	return generateParser(it)
 }
 
 func (p *Parser) Parse(data []byte) (*ParsedData, error) {
@@ -31,13 +32,16 @@ func Generate(bnf []byte) (*Parser, error) {
 		return nil, err
 	}
 
-	f, _ := bnfparser(it)
-
-	if execute(f, it) {
-		// TODO add errors for exec
-		return nil, errors.New("exec bnf error")
+	f, err := bnfparser(it)
+	if err != nil {
+		return nil, err
 	}
+	printTree(f)
 
+	execute(f, it)
+	fmt.Println(it.Data().labels)
+
+	return nil, nil
 	// TODO
-	return NewParser(it.GetLexes([]string{"lvalue", "expr", "rvalue"}, false, false))
+	// return NewParser(it)
 }
