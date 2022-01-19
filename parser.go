@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -20,9 +19,9 @@ func (p *Parser) Parse(data []byte) (*ParsedData, error) {
 		return nil, err
 	}
 
-	if execute(p.f, dataIt) {
-		return nil, errors.New("exec data error")
-	}
+	// if execute(p.f, dataIt) ==  {
+	// 	return nil, errors.New("exec data error")
+	// }
 	return dataIt.Data(), nil
 }
 

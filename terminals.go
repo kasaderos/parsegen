@@ -2,18 +2,18 @@ package main
 
 func termStr(s string) tFunc {
 	b := []byte(s)
-	return func(it Iterator) bool {
+	return func(it Iterator) code {
 		for _, c := range b {
 			if c != it.CC() {
 				// log.Printf("Str[T]: not matched %c != %c", c, it.CC())
-				return true
-			}
-			if it.EOF() {
-				return true
+				return err
 			}
 			it.GC()
 		}
-		return it.EOF()
+		if it.EOF() {
+			return eof
+		}
+		return zero
 	}
 }
 
@@ -26,7 +26,7 @@ func isDigit(b byte) bool {
 }
 
 func termID() tFunc {
-	return func(it Iterator) bool {
+	return func(it Iterator) code {
 		i := it.GP()
 		for !it.EOF() && isAlpha(it.CC()) {
 			it.GC()
@@ -34,35 +34,44 @@ func termID() tFunc {
 		// true if empty or eof
 		if i == it.GP() {
 			// it.SetError("ID[T]: empty")
-			return true
+			return err
 		}
-		return it.EOF()
+		if it.EOF() {
+			return eof
+		}
+		return zero
 	}
 }
 
 func termEmpty() tFunc {
-	return func(it Iterator) bool {
-		return false
+	return func(it Iterator) code {
+		if it.EOF() {
+			return eof
+		}
+		return zero
 	}
 }
 
 func termInteger() tFunc {
-	return func(it Iterator) bool {
+	return func(it Iterator) code {
 		i := it.GP()
 		for !it.EOF() && isDigit(it.CC()) {
 			it.GC()
 		}
 		if i == it.GP() {
 			// it.SetError("Integer[T]: empty")
-			return true
+			return err
 		}
-		return it.EOF()
+		if it.EOF() {
+			return eof
+		}
+		return zero
 	}
 }
 
 // end symbol
 func termAny(end byte, includeEnd bool) tFunc {
-	return func(it Iterator) bool {
+	return func(it Iterator) code {
 		i := it.GP()
 		for !it.EOF() && it.CC() != end {
 			it.GC()
@@ -73,17 +82,20 @@ func termAny(end byte, includeEnd bool) tFunc {
 		}
 		if i == it.GP() {
 			// it.SetError("Any[T]: empty")
-			return true
+			return err
 		}
-		return it.EOF()
+		if it.EOF() {
+			return eof
+		}
+		return zero
 	}
 }
 
 func termAnyQuoted() tFunc {
-	return func(it Iterator) bool {
+	return func(it Iterator) code {
 		if it.CC() != '"' {
 			// it.SetError("AnyQuoted[T]: not beginning quote")
-			return true
+			return err
 		}
 		it.GC()
 		i := it.GP()
@@ -94,10 +106,13 @@ func termAnyQuoted() tFunc {
 			it.GC()
 		}
 		it.GC()
-		if i == it.GP()-1 {
+		if i >= it.GP()-1 {
 			// it.SetError("AnyQuoted[T]: empty")
-			return true
+			return err
 		}
-		return it.EOF()
+		if it.EOF() {
+			return eof
+		}
+		return zero
 	}
 }

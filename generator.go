@@ -94,6 +94,10 @@ func generateFunction(rules []Rule) (*function, error) {
 				continue
 			}
 
+			if subf.isCycle() && subf.hasNext(0) {
+				return nil, errors.New("cycle has more than one rvalue")
+			}
+
 			funcNames[subf.name] = struct{}{}
 			found := false
 			// find subf from all funcs
@@ -104,20 +108,8 @@ func generateFunction(rules []Rule) (*function, error) {
 					found = true
 					break
 				}
-				// TODO below code don't work because top does this
-				// but without checks
-
-				// if it's the same func it must be in the end
-				if subf.name == f.name {
-					// must be typ L
-					if f.typ != 'L' {
-						return nil, errors.New("invalid recursive call")
-					}
-					// defined in the end
-					if i != len(f.funcs)-1 {
-						return nil, errors.New("self func must defined in the end")
-					}
-				}
+				// TODO check leaf are terminals
+				// use printTree func
 			}
 			if !found {
 				return nil, errors.New(fmt.Sprintf("not resolved entity %s", subf.name))

@@ -22,8 +22,8 @@ func TestStr(t *testing.T) {
 	it, err := NewIterator([]byte(s), true)
 	assert(t, err == nil, err)
 	execute(f, it)
-	i := it.Data().labels[name].i[0]
-	j := it.Data().labels[name].j[0]
+	i := it.Data().labels[name].i
+	j := it.Data().labels[name].j
 	assert(t, i == 0, i)
 	assert(t, j == 8, j)
 	assert(t, !it.HasError())
@@ -46,8 +46,8 @@ func TestAnyQuoted(t *testing.T) {
 	it, err := NewIterator([]byte(s), true)
 	assert(t, err == nil, err)
 	execute(f, it)
-	i := it.Data().labels[name].i[0]
-	j := it.Data().labels[name].j[0]
+	i := it.Data().labels[name].i
+	j := it.Data().labels[name].j
 	assert(t, i == 0, i)
 	assert(t, j == 10, j)
 	assert(t, !it.HasError())
@@ -70,8 +70,8 @@ func TestID(t *testing.T) {
 	it, err := NewIterator([]byte(s), true)
 	assert(t, err == nil, err)
 	execute(f, it)
-	i := it.Data().labels[name].i[0]
-	j := it.Data().labels[name].j[0]
+	i := it.Data().labels[name].i
+	j := it.Data().labels[name].j
 	assert(t, i == 0, i)
 	assert(t, j == 4, j)
 	assert(t, !it.HasError())
