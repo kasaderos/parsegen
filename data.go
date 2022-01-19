@@ -1,7 +1,7 @@
 package main
 
 type labels struct {
-	i, j int // i included, j not
+	i, j []int // i included, j not
 }
 
 type lex struct {
@@ -30,13 +30,13 @@ func (pd *ParsedData) GetLexes(entities []string, strIncluded bool, alloc bool) 
 
 func (pd *ParsedData) SetStart(name string, ind int) {
 	labels := pd.labels[name]
-	labels.i = ind
+	labels.i = append(labels.i, ind)
 	pd.labels[name] = labels
 }
 
 func (pd *ParsedData) SetEnd(name string, ind int) {
 	labels := pd.labels[name]
-	labels.j = ind
+	labels.j = append(labels.j, ind)
 	pd.labels[name] = labels
 }
 

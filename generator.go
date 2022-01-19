@@ -80,12 +80,12 @@ func generateFunction(rules []Rule) (*function, error) {
 		}
 		// all sub funcs must be unique
 		// can't be unnamed
-		funcNames := make(map[string]struct{}, 0)
-		funcNames[""] = struct{}{}
+		// funcNames := make(map[string]struct{}, 0)
+		// funcNames[""] = struct{}{}
 		for i, subf := range f.funcs {
-			if _, ok := funcNames[subf.name]; ok {
-				return nil, errors.New("all rvalue must be unique")
-			}
+			// if _, ok := funcNames[subf.name]; ok {
+			// return nil, errors.New("all rvalue must be unique")
+			// }
 
 			if subf.isTerminal() {
 				if subf.existFunc(0) {
@@ -98,7 +98,7 @@ func generateFunction(rules []Rule) (*function, error) {
 				return nil, errors.New("cycle has more than one rvalue")
 			}
 
-			funcNames[subf.name] = struct{}{}
+			// funcNames[subf.name] = struct{}{}
 			found := false
 			// find subf from all funcs
 			for _, fn := range funcs {

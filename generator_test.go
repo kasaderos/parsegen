@@ -135,7 +135,7 @@ func TestBacktrackLogic(t *testing.T) {
 	assert(t, err == nil, err)
 	ret := execute(f, it)
 	lbls := it.Data().labels
-	assert(t, lbls["A"].i == 0 && lbls["A"].j == 2)
+	assert(t, lbls["A"].i[0] == 0 && lbls["A"].j[0] == 2)
 	assert(t, ret == zero || ret == eof, "ret == err")
 	printTree(f)
 }
@@ -155,16 +155,46 @@ func TestBacktrackCycle(t *testing.T) {
 	assert(t, err == nil, err)
 	ret := execute(f, it)
 	lbls := it.Data().labels
-	assert(t, lbls["A"].i == 0 && lbls["A"].j == 4)
+	assert(t, lbls["A"].i[0] == 0 && lbls["A"].j[0] == 4)
+	assert(t, ret == zero, "ret == err")
+}
+
+func TestExecuteCycleData(t *testing.T) {
+	rules := []Rule{
+		{term{typ: 'N', name: "S"}, []term{
+			term{typ: 'C', name: "SP", marked: true},
+			{typ: 'C', name: "A", marked: true},
+			term{typ: 'C', name: "SP", marked: true},
+			{typ: 'C', name: "A", marked: true},
+			term{typ: 'C', name: "SP", marked: true},
+			{typ: 'C', name: "A", marked: true},
+			term{typ: 'C', name: "SP", marked: true},
+		}},
+		{term{typ: 'C', name: "SP", marked: true}, []term{
+			{typ: 'T', name: "sp", terminal: termSpace()},
+		}},
+		{term{typ: 'C', name: "A", marked: true}, []term{
+			{typ: 'T', name: "T1", terminal: termStr("AB")},
+		}},
+	}
+	f, err := generateFunction(rules)
+	assert(t, err == nil, err)
+	it, err := NewIterator([]byte("  AB  AB  AB  "), true)
+	assert(t, err == nil, err)
+	ret := execute(f, it)
+	lbls := it.Data().labels
+	assert(t, len(lbls["A"].i) == 3 && len(lbls["SP"].j) == 4)
 	assert(t, ret == zero, "ret == err")
 }
 
 // func TestGenerateRules(t *testing.T) {
-// 	// parser, err := Generate([]byte(
-// 	// 	"S = A | S;" +
-// 	// 		"A = \"-\" ;",
-// 	// ))
-// 	// Uri
+// 	parser, err := Generate([]byte(
+// 		"rule=\"AA\" id1 id2;",
+// 	))
+// 	assert(t, err == nil, err)
+// 	_ = parser
+// 	_ = err
+// }
 
 // 	parser, err := Generate([]byte(
 // 		"S = URI ;" +

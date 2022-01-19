@@ -26,7 +26,7 @@ func (p *Parser) Parse(data []byte) (*ParsedData, error) {
 }
 
 func Generate(bnf []byte) (*Parser, error) {
-	it, err := NewIterator(bnf, false)
+	it, err := NewIterator(bnf, true)
 	if err != nil {
 		return nil, err
 	}

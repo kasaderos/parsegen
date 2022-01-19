@@ -52,6 +52,23 @@ func termEmpty() tFunc {
 	}
 }
 
+func termSpace() tFunc {
+	return func(it Iterator) code {
+		i := it.GP()
+		for !it.EOF() && IsSpace(it.CC()) {
+			it.GC()
+		}
+		if it.EOF() {
+			return eof
+		}
+
+		if i == it.GP() {
+			return missed
+		}
+		return zero
+	}
+}
+
 func termInteger() tFunc {
 	return func(it Iterator) code {
 		i := it.GP()
