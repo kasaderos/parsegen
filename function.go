@@ -7,7 +7,7 @@ var S = function{}
 type code int
 
 const (
-	err code = iota
+	missed code = iota
 	eof
 	zero
 )

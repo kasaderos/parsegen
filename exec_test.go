@@ -97,7 +97,7 @@ func TestExecuteLogic2(t *testing.T) {
 	f.funcs = append(f.funcs, &function{
 		typ: 'L',
 		funcs: []*function{
-			{typ: 'T', terminal: func(it Iterator) code { n++; return err }},
+			{typ: 'T', terminal: func(it Iterator) code { n++; return missed }},
 			{typ: 'T', terminal: func(it Iterator) code { n++; return zero }},
 		},
 	},
@@ -114,8 +114,8 @@ func TestExecuteLogic3(t *testing.T) {
 	f.funcs = append(f.funcs, &function{
 		typ: 'L',
 		funcs: []*function{
-			{typ: 'T', terminal: func(it Iterator) code { n++; return err }},
-			{typ: 'T', terminal: func(it Iterator) code { n++; return err }},
+			{typ: 'T', terminal: func(it Iterator) code { n++; return missed }},
+			{typ: 'T', terminal: func(it Iterator) code { n++; return missed }},
 			{typ: 'T', terminal: func(it Iterator) code { n++; return zero }},
 		},
 	},
@@ -133,8 +133,8 @@ func TestExecuteLogic4(t *testing.T) {
 	f2.funcs = append(f2.funcs, &function{
 		typ: 'L',
 		funcs: []*function{
-			{typ: 'T', terminal: func(it Iterator) code { n++; return err }},
-			{typ: 'T', terminal: func(it Iterator) code { n++; return err }},
+			{typ: 'T', terminal: func(it Iterator) code { n++; return missed }},
+			{typ: 'T', terminal: func(it Iterator) code { n++; return missed }},
 		},
 	},
 	)
@@ -153,17 +153,17 @@ func TestExecuteLogicBad1(t *testing.T) {
 	f2.funcs = append(f2.funcs, &function{
 		typ: 'L', name: "A",
 		funcs: []*function{
-			{typ: 'T', name: "B", terminal: func(it Iterator) code { n++; return err }},
-			{typ: 'T', name: "C", terminal: func(it Iterator) code { n++; return err }},
+			{typ: 'T', name: "B", terminal: func(it Iterator) code { n++; return missed }},
+			{typ: 'T', name: "C", terminal: func(it Iterator) code { n++; return missed }},
 		},
 	},
 	)
-	f2.funcs = append(f2.funcs, &function{typ: 'T', name: "D", terminal: func(it Iterator) code { n++; return err }})
+	f2.funcs = append(f2.funcs, &function{typ: 'T', name: "D", terminal: func(it Iterator) code { n++; return missed }})
 	f.funcs = append(f.funcs, &f2)
 	it, _ := NewIterator([]byte("Example"), true)
 	ret := execute(&f, it)
 	assert(t, n == 3)
-	assert(t, ret == err)
+	assert(t, ret == missed)
 }
 
 func TestExecuteLogicBad2(t *testing.T) {
@@ -172,16 +172,16 @@ func TestExecuteLogicBad2(t *testing.T) {
 	f.funcs = append(f.funcs, &function{
 		typ: 'L',
 		funcs: []*function{
-			{typ: 'T', terminal: func(it Iterator) code { n++; return err }},
-			{typ: 'T', terminal: func(it Iterator) code { n++; return err }},
-			{typ: 'T', terminal: func(it Iterator) code { n++; return err }},
+			{typ: 'T', terminal: func(it Iterator) code { n++; return missed }},
+			{typ: 'T', terminal: func(it Iterator) code { n++; return missed }},
+			{typ: 'T', terminal: func(it Iterator) code { n++; return missed }},
 		},
 	},
 	)
 	it, _ := NewIterator([]byte("Example"), true)
 	ret := execute(&f, it)
 	assert(t, n == 3)
-	assert(t, ret == err)
+	assert(t, ret == missed)
 }
 
 func TestExecuteCycle(t *testing.T) {
@@ -190,7 +190,7 @@ func TestExecuteCycle(t *testing.T) {
 	f := function{typ: 'C'}
 	f.funcs = append(f.funcs, &function{typ: 'T', terminal: func(it Iterator) code {
 		if n >= 3 {
-			return err
+			return missed
 		}
 		n++
 		return zero

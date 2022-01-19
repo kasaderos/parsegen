@@ -1,94 +1,186 @@
 package main
 
-// import (
-// 	"fmt"
-// 	"testing"
-// )
+import (
+	"fmt"
+	"testing"
+)
 
-// func TestGenerateFunction1(t *testing.T) {
-// 	rules := []Rule{
-// 		{term{typ: 'N', name: "S"}, []term{
-// 			{typ: 'N', name: "A"},
-// 			{typ: 'N', name: "B"},
-// 			{typ: 'N', name: "C"},
-// 		}},
-// 		{term{typ: 'N', name: "A"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { /*fmt.Println("A");*/ return false }},
-// 		}},
-// 		{term{typ: 'N', name: "B"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { /*fmt.Println("B");*/ return false }},
-// 		}},
-// 		{term{typ: 'N', name: "C"}, []term{
-// 			{typ: 'N', name: "D"},
-// 			{typ: 'N', name: "E"},
-// 		}},
-// 		{term{typ: 'N', name: "D"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { /*fmt.Println("D");*/ return false }},
-// 		}},
-// 		{term{typ: 'N', name: "E"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { /*fmt.Println("E");*/ return false }},
-// 		}},
-// 	}
-// 	f, err := generateFunction(rules)
-// 	assert(t, err == nil, err)
-// 	assert(t, len(f.funcs) == 3, "len != 3")
-// 	assert(t, len(f.funcs[0].funcs) == 1, "len sub != 1")
-// 	printTree(f)
-// }
+func TestGenerateFunction1(t *testing.T) {
+	rules := []Rule{
+		{term{typ: 'N', name: "S"}, []term{
+			{typ: 'N', name: "A"},
+			{typ: 'N', name: "B"},
+			{typ: 'N', name: "C"},
+		}},
+		{term{typ: 'N', name: "A"}, []term{
+			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { /*fmt.Println("A");*/ return zero }},
+		}},
+		{term{typ: 'N', name: "B"}, []term{
+			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { /*fmt.Println("B");*/ return zero }},
+		}},
+		{term{typ: 'N', name: "C"}, []term{
+			{typ: 'N', name: "D"},
+			{typ: 'N', name: "E"},
+		}},
+		{term{typ: 'N', name: "D"}, []term{
+			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { /*fmt.Println("D");*/ return zero }},
+		}},
+		{term{typ: 'N', name: "E"}, []term{
+			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { /*fmt.Println("E");*/ return zero }},
+		}},
+	}
+	f, err := generateFunction(rules)
+	assert(t, err == nil, err)
+	assert(t, len(f.funcs) == 3, "len != 3")
+	assert(t, len(f.funcs[0].funcs) == 1, "len sub != 1")
+	printTree(f)
+}
 
-// func TestGenerateFunction2(t *testing.T) {
-// 	rules := []Rule{
-// 		{term{typ: 'N', name: "S"}, []term{
-// 			{typ: 'L', name: "A"},
-// 			{typ: 'N', name: "B"},
-// 		}},
-// 		{term{typ: 'L', name: "A"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { /*fmt.Println("A");*/ return false }},
-// 			{typ: 'N', name: "C"},
-// 		}},
-// 		{term{typ: 'N', name: "B"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { /*fmt.Println("B");*/ return false }},
-// 		}},
-// 		{term{typ: 'N', name: "C"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { /*fmt.Println("B");*/ return false }},
-// 		}},
-// 	}
-// 	f, err := generateFunction(rules)
-// 	assert(t, err == nil, err)
-// 	printTree(f)
-// }
+func TestGenerateFunction2(t *testing.T) {
+	rules := []Rule{
+		{term{typ: 'N', name: "S"}, []term{
+			{typ: 'L', name: "A"},
+			{typ: 'N', name: "B"},
+		}},
+		{term{typ: 'L', name: "A"}, []term{
+			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { /*fmt.Println("A");*/ return zero }},
+			{typ: 'N', name: "C"},
+		}},
+		{term{typ: 'N', name: "B"}, []term{
+			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { /*fmt.Println("B");*/ return zero }},
+		}},
+		{term{typ: 'N', name: "C"}, []term{
+			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { /*fmt.Println("B");*/ return zero }},
+		}},
+	}
+	f, err := generateFunction(rules)
+	assert(t, err == nil, err)
+	printTree(f)
+}
 
-// func TestWithExec1(t *testing.T) {
-// 	n := 0
-// 	rules := []Rule{
-// 		{term{typ: 'N', name: "S"}, []term{
-// 			{typ: 'N', name: "A"},
-// 			{typ: 'N', name: "B"},
-// 			{typ: 'N', name: "C"},
-// 		}},
-// 		{term{typ: 'N', name: "A"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { n++; return false }},
-// 		}},
-// 		{term{typ: 'N', name: "B"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { n++; return false }},
-// 		}},
-// 		{term{typ: 'N', name: "C"}, []term{
-// 			{typ: 'N', name: "D"},
-// 			{typ: 'N', name: "E"},
-// 		}},
-// 		{term{typ: 'N', name: "D"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { n++; return false }},
-// 		}},
-// 		{term{typ: 'N', name: "E"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { n++; return false }},
-// 		}},
-// 	}
-// 	f, err := generateFunction(rules)
+func TestWithExec1(t *testing.T) {
+	n := 0
+	rules := []Rule{
+		{term{typ: 'N', name: "S"}, []term{
+			{typ: 'N', name: "A"},
+			{typ: 'N', name: "B"},
+			{typ: 'N', name: "C"},
+		}},
+		{term{typ: 'N', name: "A"}, []term{
+			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { n++; return zero }},
+		}},
+		{term{typ: 'N', name: "B"}, []term{
+			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { n++; return zero }},
+		}},
+		{term{typ: 'N', name: "C"}, []term{
+			{typ: 'N', name: "D"},
+			{typ: 'N', name: "E"},
+		}},
+		{term{typ: 'N', name: "D"}, []term{
+			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { n++; return zero }},
+		}},
+		{term{typ: 'N', name: "E"}, []term{
+			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { n++; return zero }},
+		}},
+	}
+	f, err := generateFunction(rules)
+	assert(t, err == nil, err)
+	assert(t, n != 4, fmt.Sprintf("n != 4; n = %d", n))
+	it, _ := NewIterator([]byte("Example"), true)
+	ret := execute(f, it)
+	assert(t, ret == zero, "ret == err or oef")
+}
+
+func TestExecuteCycle1(t *testing.T) {
+	n := 0
+	// S = A
+	// A = {Terminal}, A - cycle
+	rules := []Rule{
+		{term{typ: 'N', name: "S"}, []term{
+			{typ: 'C', name: "A"},
+		}},
+		{term{typ: 'C', name: "A"}, []term{
+			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code {
+				if n >= 3 {
+					return missed
+				}
+				n++
+				fmt.Println("A")
+				return zero
+			}},
+		}},
+	}
+	f, err := generateFunction(rules)
+	assert(t, err == nil, err)
+	it, _ := NewIterator([]byte("Example"), true)
+	ret := execute(f, it)
+	assert(t, ret == zero, "ret true")
+	assert(t, n == 3, fmt.Sprintf("n != 3; n = %d", n))
+	printTree(f)
+}
+
+func TestBacktrackLogic(t *testing.T) {
+	rules := []Rule{
+		{term{typ: 'N', name: "S"}, []term{
+			{typ: 'L', name: "A", marked: true},
+		}},
+		{term{typ: 'L', name: "A", marked: true}, []term{
+			{typ: 'T', name: "T1", terminal: termStr("AA")},
+			{typ: 'T', name: "T2", terminal: termStr("AB")},
+		}},
+	}
+	f, err := generateFunction(rules)
+	assert(t, err == nil, err)
+	it, err := NewIterator([]byte("AB"), true)
+	assert(t, err == nil, err)
+	ret := execute(f, it)
+	lbls := it.Data().labels
+	assert(t, lbls["A"].i == 0 && lbls["A"].j == 2)
+	assert(t, ret == zero || ret == eof, "ret == err")
+	printTree(f)
+}
+
+func TestBacktrackCycle(t *testing.T) {
+	rules := []Rule{
+		{term{typ: 'N', name: "S"}, []term{
+			{typ: 'C', name: "A", marked: true},
+		}},
+		{term{typ: 'C', name: "A", marked: true}, []term{
+			{typ: 'T', name: "T1", terminal: termStr("AB")},
+		}},
+	}
+	f, err := generateFunction(rules)
+	assert(t, err == nil, err)
+	it, err := NewIterator([]byte("ABABBC"), true)
+	assert(t, err == nil, err)
+	ret := execute(f, it)
+	lbls := it.Data().labels
+	assert(t, lbls["A"].i == 0 && lbls["A"].j == 4)
+	assert(t, ret == zero, "ret == err")
+}
+
+// func TestGenerateRules(t *testing.T) {
+// 	// parser, err := Generate([]byte(
+// 	// 	"S = A | S;" +
+// 	// 		"A = \"-\" ;",
+// 	// ))
+// 	// Uri
+
+// 	parser, err := Generate([]byte(
+// 		"S = URI ;" +
+// 			"URI = scheme \":\" path ;" +
+// 			"scheme = Any(:) ;" +
+// 			"path = Any() ;",
+// 	))
 // 	assert(t, err == nil, err)
-// 	assert(t, n != 4, fmt.Sprintf("n != 4; n = %d", n))
-// 	it, _ := NewIterator([]byte("Example"), true)
-// 	ret := execute(f, it)
-// 	assert(t, !ret, "ret true")
+// 	_ = parser
+// 	/*
+// 		[A] B [C]
+// 		V1 | V2 | V3
+// 		V1 = A B
+// 		V2 = B C
+// 		V3 = A B C
+// 	*/
 // }
 
 // func TestWithExec2(t *testing.T) {
@@ -141,58 +233,6 @@ package main
 // 	ret := execute(f, it)
 // 	assert(t, !ret, "ret true")
 // 	assert(t, n == 3, fmt.Sprintf("n != 3; n = %d", n))
-// }
-
-// func TestExecuteCycle(t *testing.T) {
-// 	n := 0
-// 	// S = A
-// 	// A = {Terminal}, A - cycle
-// 	rules := []Rule{
-// 		{term{typ: 'N', name: "S"}, []term{
-// 			{typ: 'C', name: "A"},
-// 		}},
-// 		{term{typ: 'C', name: "A"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool {
-// 				if n >= 3 {
-// 					return false
-// 				}
-// 				n++
-// 				fmt.Println("A")
-// 				return true
-// 			}},
-// 		}},
-// 	}
-// 	f, err := generateFunction(rules)
-// 	assert(t, err == nil, err)
-// 	it, _ := NewIterator([]byte("Example"), true)
-// 	ret := execute(f, it)
-// 	assert(t, !ret, "ret true")
-// 	assert(t, n == 3, fmt.Sprintf("n != 3; n = %d", n))
-// 	printTree(f)
-// }
-
-// func TestGenerateRules(t *testing.T) {
-// 	// parser, err := Generate([]byte(
-// 	// 	"S = A | S;" +
-// 	// 		"A = \"-\" ;",
-// 	// ))
-// 	// Uri
-
-// 	parser, err := Generate([]byte(
-// 		"S = URI ;" +
-// 			"URI = scheme \":\" path ;" +
-// 			"scheme = Any(:) ;" +
-// 			"path = Any() ;",
-// 	))
-// 	assert(t, err == nil, err)
-// 	_ = parser
-// 	/*
-// 		[A] B [C]
-// 		V1 | V2 | V3
-// 		V1 = A B
-// 		V2 = B C
-// 		V3 = A B C
-// 	*/
 // }
 
 // /*

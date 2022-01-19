@@ -96,6 +96,7 @@ func (it *SimpleIterator) GP() int {
 
 func (it *SimpleIterator) BT(ind int) {
 	it.ind = ind
+	it.curr = it.data[ind]
 }
 func (it *CommonIterator) GC() {
 	if it.ind+1 >= len(it.data) {
@@ -121,4 +122,5 @@ func (it *CommonIterator) GP() int {
 
 func (it *CommonIterator) BT(ind int) {
 	it.ind = ind
+	it.curr = it.data[ind]
 }

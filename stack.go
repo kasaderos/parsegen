@@ -6,7 +6,7 @@ type Frame struct {
 	f     *function
 	i     int
 	start int
-	end   int
+	buf   int
 }
 
 type Stack struct {

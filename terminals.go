@@ -6,7 +6,7 @@ func termStr(s string) tFunc {
 		for _, c := range b {
 			if c != it.CC() {
 				// log.Printf("Str[T]: not matched %c != %c", c, it.CC())
-				return err
+				return missed
 			}
 			it.GC()
 		}
@@ -34,7 +34,7 @@ func termID() tFunc {
 		// true if empty or eof
 		if i == it.GP() {
 			// it.SetError("ID[T]: empty")
-			return err
+			return missed
 		}
 		if it.EOF() {
 			return eof
@@ -60,7 +60,7 @@ func termInteger() tFunc {
 		}
 		if i == it.GP() {
 			// it.SetError("Integer[T]: empty")
-			return err
+			return missed
 		}
 		if it.EOF() {
 			return eof
@@ -82,7 +82,7 @@ func termAny(end byte, includeEnd bool) tFunc {
 		}
 		if i == it.GP() {
 			// it.SetError("Any[T]: empty")
-			return err
+			return missed
 		}
 		if it.EOF() {
 			return eof
@@ -95,7 +95,7 @@ func termAnyQuoted() tFunc {
 	return func(it Iterator) code {
 		if it.CC() != '"' {
 			// it.SetError("AnyQuoted[T]: not beginning quote")
-			return err
+			return missed
 		}
 		it.GC()
 		i := it.GP()
@@ -108,7 +108,7 @@ func termAnyQuoted() tFunc {
 		it.GC()
 		if i >= it.GP()-1 {
 			// it.SetError("AnyQuoted[T]: empty")
-			return err
+			return missed
 		}
 		if it.EOF() {
 			return eof
