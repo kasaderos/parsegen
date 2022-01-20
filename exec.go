@@ -17,13 +17,11 @@ func back(stack *Stack, it Iterator, ret *code) {
 				*ret = zero
 				stack.Push(Frame{f, i + 1, start, it.GP()})
 				it.BT(start)
-				stack.Push(Frame{f.funcs[i+1], 0, it.GP(), it.GP()})
 				return
 			}
 		case 'C':
 			if *ret == zero {
 				stack.Push(Frame{f, 0, start, it.GP()})
-				stack.Push(Frame{f.funcs[0], 0, it.GP(), it.GP()})
 				return
 			}
 			it.BT(buf)
@@ -31,7 +29,6 @@ func back(stack *Stack, it Iterator, ret *code) {
 		case 'N':
 			if *ret == zero && f.hasNext(i) {
 				stack.Push(Frame{f, i + 1, it.GP(), it.GP()})
-				stack.Push(Frame{f.funcs[i+1], 0, it.GP(), it.GP()})
 				return
 			}
 		}
@@ -57,7 +54,7 @@ func execute(f *function, it Iterator) code {
 		case 'N', 'L', 'C':
 			// if non terminal is not empty push
 			if f.existFunc(i) {
-				stack.Push(Frame{f.funcs[i], i, it.GP(), it.GP()})
+				stack.Push(Frame{f.funcs[i], 0, it.GP(), it.GP()})
 			} else {
 				back(stack, it, &ret)
 			}
