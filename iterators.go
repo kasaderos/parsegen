@@ -50,7 +50,7 @@ func NewIterator(data []byte, includeSpaces bool) (Iterator, error) {
 	it := IteratorStruct{
 		curr: data[0],
 	}
-	pd := &ParsedData{data, make(map[string]labels)}
+	pd := &ParsedData{data, make(map[string]label)}
 	if includeSpaces {
 		return &CommonIterator{pd, it}, nil
 	}

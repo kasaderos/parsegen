@@ -6,7 +6,7 @@ import (
 )
 
 func TestGenerateFunction1(t *testing.T) {
-	rules := []Rule{
+	rules := []*Rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: "A"},
 			{typ: 'N', name: "B"},
@@ -37,7 +37,7 @@ func TestGenerateFunction1(t *testing.T) {
 }
 
 func TestGenerateFunction2(t *testing.T) {
-	rules := []Rule{
+	rules := []*Rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'L', name: "A"},
 			{typ: 'N', name: "B"},
@@ -60,7 +60,7 @@ func TestGenerateFunction2(t *testing.T) {
 
 func TestWithExec1(t *testing.T) {
 	n := 0
-	rules := []Rule{
+	rules := []*Rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: "A"},
 			{typ: 'N', name: "B"},
@@ -95,7 +95,7 @@ func TestExecuteCycle1(t *testing.T) {
 	n := 0
 	// S = A
 	// A = {Terminal}, A - cycle
-	rules := []Rule{
+	rules := []*Rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'C', name: "A"},
 		}},
@@ -120,7 +120,7 @@ func TestExecuteCycle1(t *testing.T) {
 }
 
 func TestBacktrackLogic(t *testing.T) {
-	rules := []Rule{
+	rules := []*Rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'L', name: "A", marked: true},
 		}},
@@ -135,13 +135,14 @@ func TestBacktrackLogic(t *testing.T) {
 	assert(t, err == nil, err)
 	ret := execute(f, it)
 	lbls := it.Data().labels
-	assert(t, lbls["A"].i[0] == 0 && lbls["A"].j[0] == 2)
+	fmt.Println(lbls)
+	assert(t, len(lbls["A"].i) > 0 && lbls["A"].i[0] == 0 && lbls["A"].j[0] == 2)
 	assert(t, ret == zero || ret == eof, "ret == err")
 	printTree(f)
 }
 
 func TestBacktrackCycle(t *testing.T) {
-	rules := []Rule{
+	rules := []*Rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'C', name: "A", marked: true},
 		}},
@@ -160,7 +161,7 @@ func TestBacktrackCycle(t *testing.T) {
 }
 
 func TestExecuteCycleData(t *testing.T) {
-	rules := []Rule{
+	rules := []*Rule{
 		{term{typ: 'N', name: "S"}, []term{
 			term{typ: 'C', name: "SP", marked: true},
 			{typ: 'C', name: "A", marked: true},
@@ -191,11 +192,12 @@ func TestExecuteCycleData(t *testing.T) {
 
 func TestGenerateRules(t *testing.T) {
 	parser, err := Generate([]byte(
-		"rule12=\"AA\"|id1|id2",
+		"S = \"Hello World\"",
 	))
 	assert(t, err == nil, err)
-	_ = parser
-	_ = err
+	pd, err := parser.Parse([]byte("Hello World"))
+	assert(t, err == nil, err)
+	fmt.Println(pd.labels)
 }
 
 // 	parser, err := Generate([]byte(

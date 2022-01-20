@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"unicode"
 )
 
 type term struct {
@@ -19,28 +21,73 @@ type Rule struct {
 	rvalue []term
 }
 
-func generateParser(it Iterator) (*Parser, error) {
-	// TODO BNFData
-	rules, err := generateRules(it)
-	if err != nil {
-		return nil, err
+func generateRules(it Iterator) (*Rule, error) {
+	pd := it.Data()
+
+	expr1 := pd.GetLabel("expr1")
+	expr2 := pd.GetLabel("expr2")
+	expr3 := pd.GetLabel("expr3")
+
+	typ := byte('Z')
+	if expr1.isOnly() {
+		typ = 'N'
+	} else if expr2.isOnly() {
+		typ = 'L'
+	} else if expr3.isOnly() {
+		typ = 'C'
 	}
 
-	f, err := generateFunction(rules)
-	if err != nil {
-		return nil, err
+	if typ == 'Z' {
+		return nil, errors.New("invalid expr")
+	}
+	lid := string(pd.Get(lid))
+	if len(lid) < 1 {
+		return nil, errors.New("lvalue empty")
+	}
+	rule := &Rule{
+		lvalue: term{typ: typ, name: lid},
 	}
 
-	return &Parser{f}, nil
+	if unicode.IsTitle(rune(lid[0])) {
+		rule.lvalue.marked = true
+	}
+
+	rvalue := make([]term, 0)
+LP:
+	for _, item := range pd.GetAll("rvalue") {
+		if len(item) < 1 {
+			return nil, errors.New("rvalue empty")
+		}
+		for _, rid := range pd.GetAll("rid") {
+			if bytes.Compare(item, rid) == 0 {
+				rvalue = append(rvalue, term{name: string(item)})
+				continue LP
+			}
+		}
+		// str: "a", "absdf"
+		if len(item) < 3 {
+			return nil, errors.New("str must have at least one character")
+		}
+		for _, str := range pd.GetAll("string") {
+			if bytes.Compare(item, str) == 0 {
+				value := removeQuotes(str)
+				rvalue = append(rvalue, term{typ: 'T', name: value, terminal: termStr(value)})
+				continue LP
+			}
+		}
+		return nil, errors.New("invalid rvalue")
+	}
+
+	rule.rvalue = rvalue
+	return rule, nil
 }
 
-func generateRules(it Iterator) ([]Rule, error) {
-	fmt.Println(it.Data().labels)
-	return nil, nil
+func removeQuotes(s []byte) string {
+	return string(s[1 : len(s)-1])
 }
 
 // syntax analyzer
-func generateFunction(rules []Rule) (*function, error) {
+func generateFunction(rules []*Rule) (*function, error) {
 	funcs := []*function{}
 	var initial *function
 	count := 0
@@ -54,7 +101,7 @@ func generateFunction(rules []Rule) (*function, error) {
 				typ:      rvalue.typ,
 				name:     rvalue.name,
 				terminal: rvalue.terminal,
-				marked:   rvalue.marked,
+				marked:   rvalue.marked, // if lvalue marked => all rvalues marked
 			})
 		}
 		funcs = append(funcs, f)
@@ -103,7 +150,7 @@ func generateFunction(rules []Rule) (*function, error) {
 			// find subf from all funcs
 			for _, fn := range funcs {
 				// if it's found append
-				if subf.name == fn.name && subf.typ == fn.typ {
+				if subf.name == fn.name {
 					subf.funcs = append(subf.funcs, fn.funcs...)
 					found = true
 					break

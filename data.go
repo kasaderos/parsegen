@@ -1,7 +1,11 @@
 package main
 
-type labels struct {
+type label struct {
 	i, j []int // i included, j not
+}
+
+func (lbls *label) isOnly() bool {
+	return len(lbls.i) == 1 && len(lbls.j) == 1
 }
 
 type lex struct {
@@ -11,7 +15,7 @@ type lex struct {
 
 type ParsedData struct {
 	data   []byte
-	labels map[string]labels // lvalue : labels
+	labels map[string]label // lvalue : labels
 }
 
 type Data interface {
@@ -21,11 +25,34 @@ type Data interface {
 type Labeler interface {
 	SetStart(string, int)
 	SetEnd(string, int)
-	GetLexes([]string, bool, bool) map[string][]lex
+	Get(string) []byte
+	GetAll(string) [][]byte
 }
 
-func (pd *ParsedData) GetLexes(entities []string, strIncluded bool, alloc bool) map[string][]lex {
-	return nil
+// read only
+func (pd *ParsedData) Get(key string) []byte {
+	lbl, ok := pd.labels[key]
+	if !ok || len(lbl.i) < 1 || len(lbl.j) < 1 {
+		return nil
+	}
+	return pd.data[lbl.i[0]:lbl.j[0]]
+}
+
+func (pd *ParsedData) GetLabel(key string) label {
+	lbl, _ := pd.labels[key]
+	return lbl
+}
+
+func (pd *ParsedData) GetAll(key string) [][]byte {
+	lbl, ok := pd.labels[key]
+	if !ok || len(lbl.i) < 1 || len(lbl.j) < 1 {
+		return nil
+	}
+	all := make([][]byte, 0)
+	for k := 0; k < len(lbl.i) && k < len(lbl.j); k++ {
+		all = append(all, pd.data[lbl.i[k]:lbl.j[k]])
+	}
+	return all
 }
 
 func (pd *ParsedData) SetStart(name string, ind int) {

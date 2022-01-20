@@ -83,10 +83,10 @@ package main
 
  */
 //      rule = lvalue "=" expr ";" ;
-//      expr = rvalue expr1 ;
-//      expr1 = exprT1 | exprT2 ;
-//      exprT1 = rvalue { rvalue } ;
-//      exprT2 = { "|" rvalue } ; // LL parser tricks
+//      expr = expr1 | expr2 | expr3 ;
+//      expr1 = rvalue { SP { SP } rvalue }
+//      expr2 = "{" rvalue "}"
+//      expr3 = rvalue { "|" rvalue }
 //      lvalue = id ;
 //      rvalue = id | string ;
 /*
@@ -110,55 +110,75 @@ package main
 	) map[entity][]lex
 */
 
+const lid = "lid"
+const rid = "rid"
+const rstring = "string"
+
 func bnfparser(it Iterator) (*function, error) {
-	rules := []Rule{
+	rules := []*Rule{
 		{term{typ: 'N', name: "S", marked: true}, []term{
 			{typ: 'N', name: "rule", marked: true},
 		}},
+		// rule = lvalue "=" expr ";" ;
 		{term{typ: 'N', name: "rule", marked: true}, []term{
 			{typ: 'C', name: "SP"},
-			{typ: 'L', name: "lvalue", marked: true},
+			{typ: 'T', name: lid, marked: true, terminal: termID()},
 			{typ: 'C', name: "SP"},
 			{typ: 'T', name: "assign", marked: true, terminal: termStr("=")},
 			{typ: 'C', name: "SP"},
-			{typ: 'N', name: "expr", marked: true},
+			{typ: 'L', name: "expr", marked: true},
+			{typ: 'C', name: "SP"},
+			{typ: 'T', name: "end", marked: true, terminal: termStr(";")},
 		}},
-		{term{typ: 'L', name: "lvalue", marked: true}, []term{
-			{typ: 'T', name: "lid", marked: true, terminal: termID()},
+		{term{typ: 'L', name: "expr", marked: true}, []term{
+			{typ: 'N', name: "expr1", marked: true},
+			{typ: 'N', name: "expr2", marked: true},
+			{typ: 'N', name: "expr3", marked: true},
+		}},
+		// rvalue SP rvalue { SP rvalue }
+		{term{typ: 'N', name: "expr1", marked: true}, []term{
+			{typ: 'L', name: "rvalue", marked: true},
+			{typ: 'N', name: "SP1"},
+			{typ: 'L', name: "rvalue", marked: true},
+			{typ: 'C', name: "rvalues", marked: true},
+		}},
+		{term{typ: 'C', name: "rvalues"}, []term{
+			{typ: 'N', name: "SP1"},
+			{typ: 'L', name: "rvalue"},
+		}},
+		// "{" rvalue "}"
+		{term{typ: 'N', name: "expr2", marked: true}, []term{
+			{typ: 'T', name: "openBrace", marked: true, terminal: termStr("{")},
+			{typ: 'C', name: "SP"},
+			{typ: 'L', name: "rvalue", marked: true},
+			{typ: 'C', name: "SP"},
+			{typ: 'T', name: "closeBrace", marked: true, terminal: termStr("}")},
+		}},
+		// rvalue "|" rvalue { "|" rvalue }
+		{term{typ: 'N', name: "expr3", marked: true}, []term{
+			{typ: 'L', name: "rvalue"},
+			{typ: 'N', name: "rvalue1", marked: true},
+			{typ: 'C', name: "rvalue1S", marked: true},
+		}},
+		{term{typ: 'N', name: "rvalue1", marked: true}, []term{
+			{typ: 'C', name: "SP"},
+			{typ: 'T', name: "signOr", marked: true, terminal: termStr("|")},
+			{typ: 'C', name: "SP"},
+			{typ: 'L', name: "rvalue", marked: true},
+		}},
+		{term{typ: 'C', name: "rvalue1S", marked: true}, []term{
+			{typ: 'N', name: "rvalue1"},
+		}},
+		{term{typ: 'L', name: "rvalue", marked: true}, []term{
+			{typ: 'T', name: rid, marked: true, terminal: termID()},
+			{typ: 'T', name: rstring, marked: true, terminal: termAnyQuoted()},
 		}},
 		{term{typ: 'C', name: "SP"}, []term{
 			{typ: 'T', name: "sp", terminal: termSpace()},
 		}},
-		{term{typ: 'N', name: "expr", marked: true}, []term{
-			{typ: 'L', name: "rvalue", marked: true},
+		{term{typ: 'N', name: "SP1"}, []term{
+			{typ: 'T', name: "sp", terminal: termSpace()},
 			{typ: 'C', name: "SP"},
-			{typ: 'L', name: "expr1", marked: true},
-		}},
-		{term{typ: 'L', name: "expr1", marked: true}, []term{
-			{typ: 'N', name: "exprT1", marked: true},
-			{typ: 'C', name: "exprT2", marked: true},
-		}},
-		{term{typ: 'N', name: "exprT1", marked: true}, []term{
-			{typ: 'L', name: "rvalue", marked: true},
-			{typ: 'C', name: "SP"},
-			{typ: 'C', name: "exprT11", marked: true},
-		}},
-		{term{typ: 'C', name: "exprT11", marked: true}, []term{
-			{typ: 'L', name: "rvalue", marked: true},
-			{typ: 'C', name: "SP"},
-		}},
-		{term{typ: 'C', name: "exprT2", marked: true}, []term{
-			{typ: 'N', name: "rvalue1", marked: true},
-		}},
-		{term{typ: 'N', name: "rvalue1", marked: true}, []term{
-			{typ: 'T', name: "signOr", marked: true, terminal: termStr("|")},
-			{typ: 'C', name: "SP"},
-			{typ: 'L', name: "rvalue", marked: true},
-			{typ: 'C', name: "SP"},
-		}},
-		{term{typ: 'L', name: "rvalue", marked: true}, []term{
-			{typ: 'T', name: "rid", marked: true, terminal: termID()},
-			{typ: 'T', name: "string", marked: true, terminal: termAnyQuoted()},
 		}},
 	}
 	f, err := generateFunction(rules)

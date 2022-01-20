@@ -9,7 +9,7 @@ func TestStr(t *testing.T) {
 	// TODO add bad tests and check error
 	s := "abcd bcd"
 	name := "String"
-	rules := []Rule{
+	rules := []*Rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: name, marked: true},
 		}},
@@ -33,7 +33,7 @@ func TestAnyQuoted(t *testing.T) {
 	// TODO add bad tests and check error
 	s := "\"abcd bcd\""
 	name := "QuotedString"
-	rules := []Rule{
+	rules := []*Rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: name, marked: true},
 		}},
@@ -57,7 +57,7 @@ func TestID(t *testing.T) {
 	// TODO add bad tests and check error
 	s := "abcd"
 	name := "ID"
-	rules := []Rule{
+	rules := []*Rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: name, marked: true},
 		}},
@@ -84,7 +84,7 @@ func TestCombined1(t *testing.T) {
 	str := "String"
 	quoted := "Quoted"
 
-	rules := []Rule{
+	rules := []*Rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: id, marked: true},
 			{typ: 'N', name: str, marked: true},
@@ -136,7 +136,7 @@ func TestCombined2(t *testing.T) {
 	// Method:
 	//    AnySpace()
 
-	rules := []Rule{
+	rules := []*Rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: method, marked: true},
 			{typ: 'T', name: space, terminal: termStr(" ")},

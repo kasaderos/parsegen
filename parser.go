@@ -1,16 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 )
 
 type Parser struct {
 	f *function
-}
-
-// TODO generate parser from ParsedData that contains bnf lexes
-func NewParser(it Iterator) (*Parser, error) {
-	return generateParser(it)
 }
 
 func (p *Parser) Parse(data []byte) (*ParsedData, error) {
@@ -19,9 +15,9 @@ func (p *Parser) Parse(data []byte) (*ParsedData, error) {
 		return nil, err
 	}
 
-	// if execute(p.f, dataIt) ==  {
-	// 	return nil, errors.New("exec data error")
-	// }
+	if execute(p.f, dataIt) == missed {
+		return nil, errors.New("exec data error")
+	}
 	return dataIt.Data(), nil
 }
 
@@ -35,12 +31,28 @@ func Generate(bnf []byte) (*Parser, error) {
 	if err != nil {
 		return nil, err
 	}
-	printTree(f)
 
-	execute(f, it)
+	rules := make([]*Rule, 0)
+	// for
+	ret := execute(f, it)
 	fmt.Println(it.Data().labels)
+	printTree(f)
+	if ret == missed {
+		return nil, errors.New("not bnf rule")
+	}
 
-	return nil, nil
-	// TODO
-	// return NewParser(it)
+	rule, err := generateRules(it)
+	if err != nil {
+		return nil, err
+	}
+	rules = append(rules, rule)
+
+	fmt.Println(rule.lvalue.name)
+	f, err = generateFunction(rules)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Parser{f}, nil
 }
