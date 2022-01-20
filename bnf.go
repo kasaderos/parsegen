@@ -122,7 +122,6 @@ func bnfparser(it Iterator) (*function, error) {
 			{typ: 'T', name: "assign", marked: true, terminal: termStr("=")},
 			{typ: 'C', name: "SP"},
 			{typ: 'N', name: "expr", marked: true},
-			{typ: 'C', name: "SP"},
 		}},
 		{term{typ: 'L', name: "lvalue", marked: true}, []term{
 			{typ: 'T', name: "lid", marked: true, terminal: termID()},
@@ -130,23 +129,25 @@ func bnfparser(it Iterator) (*function, error) {
 		{term{typ: 'C', name: "SP"}, []term{
 			{typ: 'T', name: "sp", terminal: termSpace()},
 		}},
-		{term{typ: 'L', name: "expr", marked: true}, []term{
-			{typ: 'N', name: "expr1", marked: true},
-		}},
-		{term{typ: 'N', name: "expr1", marked: true}, []term{
+		{term{typ: 'N', name: "expr", marked: true}, []term{
 			{typ: 'L', name: "rvalue", marked: true},
-			{typ: 'C', name: "exprT1", marked: true},
+			{typ: 'C', name: "SP"},
+			{typ: 'L', name: "expr1", marked: true},
 		}},
-		{term{typ: 'N', name: "expr2", marked: true}, []term{
-			{typ: 'L', name: "rvalue", marked: true},
+		{term{typ: 'L', name: "expr1", marked: true}, []term{
+			{typ: 'N', name: "exprT1", marked: true},
 			{typ: 'C', name: "exprT2", marked: true},
 		}},
 		{term{typ: 'N', name: "exprT1", marked: true}, []term{
 			{typ: 'L', name: "rvalue", marked: true},
-
+			{typ: 'C', name: "SP"},
+			{typ: 'C', name: "exprT11", marked: true},
+		}},
+		{term{typ: 'C', name: "exprT11", marked: true}, []term{
+			{typ: 'L', name: "rvalue", marked: true},
 			{typ: 'C', name: "SP"},
 		}},
-		{term{typ: 'N', name: "exprT2", marked: true}, []term{
+		{term{typ: 'C', name: "exprT2", marked: true}, []term{
 			{typ: 'N', name: "rvalue1", marked: true},
 		}},
 		{term{typ: 'N', name: "rvalue1", marked: true}, []term{

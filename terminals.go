@@ -28,7 +28,11 @@ func isDigit(b byte) bool {
 func termID() tFunc {
 	return func(it Iterator) code {
 		i := it.GP()
-		for !it.EOF() && isAlpha(it.CC()) {
+		if !isAlpha(it.CC()) {
+			return missed
+		}
+		it.GC()
+		for !it.EOF() && (isAlpha(it.CC()) || isDigit(it.CC())) {
 			it.GC()
 		}
 		// true if empty or eof

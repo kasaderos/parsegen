@@ -175,26 +175,28 @@ func TestExecuteCycleData(t *testing.T) {
 		}},
 		{term{typ: 'C', name: "A", marked: true}, []term{
 			{typ: 'T', name: "T1", terminal: termStr("AB")},
+			{typ: 'T', name: "T1", terminal: termStr("AB")},
 		}},
 	}
 	f, err := generateFunction(rules)
 	assert(t, err == nil, err)
-	it, err := NewIterator([]byte("  AB  AB  AB  "), true)
+	it, err := NewIterator([]byte("  ABAB  ABAB  ABAB  "), true)
 	assert(t, err == nil, err)
 	ret := execute(f, it)
 	lbls := it.Data().labels
+	fmt.Println(lbls)
 	assert(t, len(lbls["A"].i) == 3 && len(lbls["SP"].j) == 4)
 	assert(t, ret == zero, "ret == err")
 }
 
-// func TestGenerateRules(t *testing.T) {
-// 	parser, err := Generate([]byte(
-// 		"rule=\"AA\" id1 id2;",
-// 	))
-// 	assert(t, err == nil, err)
-// 	_ = parser
-// 	_ = err
-// }
+func TestGenerateRules(t *testing.T) {
+	parser, err := Generate([]byte(
+		"rule12=\"AA\"|id1|id2",
+	))
+	assert(t, err == nil, err)
+	_ = parser
+	_ = err
+}
 
 // 	parser, err := Generate([]byte(
 // 		"S = URI ;" +
