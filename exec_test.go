@@ -17,18 +17,16 @@ func assert(t *testing.T, b bool, s ...interface{}) {
 }
 
 func TestExecuteSimple(t *testing.T) {
-	n := 0
 	f := function{
 		typ: 'N',
 		funcs: []*function{
-			{typ: 'T', terminal: func(it Iterator) code { n++; return zero }},
-			{typ: 'T', terminal: func(it Iterator) code { n++; return zero }},
+			{typ: 'T', name: "T1", terminal: termStr("Exam")},
+			{typ: 'T', name: "T2", terminal: termStr("ple")},
 		},
 	}
 	it, _ := NewIterator([]byte("Example"))
 	ret := execute(&f, it)
-	assert(t, n == 2)
-	assert(t, ret == zero)
+	assert(t, ret == eof)
 }
 
 func TestExecuteComplex1(t *testing.T) {

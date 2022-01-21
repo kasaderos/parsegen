@@ -28,7 +28,7 @@ func back(stack *Stack, it Iterator, ret *code) {
 			*ret = zero
 		case 'N':
 			if *ret == zero && f.hasNext(i) {
-				stack.Push(Frame{f, i + 1, it.GP(), it.GP()})
+				stack.Push(Frame{f, i + 1, start, it.GP()})
 				return
 			}
 		}
