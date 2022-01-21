@@ -192,10 +192,10 @@ func TestExecuteCycleData(t *testing.T) {
 
 func TestHelloWorld(t *testing.T) {
 	parser, err := Generate([]byte(
-		"S = \"Hello World\" \"!\" ;",
+		"S = \"!!\" | \"Hello World\" | \"!\" ;",
 	))
 	assert(t, err == nil, err)
-	pd, err := parser.Parse([]byte("Hello World!"))
+	pd, err := parser.Parse([]byte("Hello World"))
 	assert(t, err == nil, err)
 	fmt.Println(pd.labels)
 }

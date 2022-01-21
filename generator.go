@@ -28,7 +28,7 @@ func generateRules(it Iterator) (*Rule, error) {
 	expr2 := pd.GetLabel("orRvalues")
 
 	typ := byte('Z')
-	if !base.isEmpty() || expr1.isOnly() {
+	if (!base.isEmpty() || expr1.isOnly()) && expr2.isEmpty() {
 		typ = 'N'
 	} else if !base.isEmpty() && expr2.isOnly() {
 		typ = 'L'
