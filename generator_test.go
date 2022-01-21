@@ -190,12 +190,32 @@ func TestExecuteCycleData(t *testing.T) {
 	assert(t, ret == zero, "ret == err")
 }
 
-func TestHelloWorld(t *testing.T) {
+func TestBaseRule(t *testing.T) {
+	parser, err := Generate([]byte(
+		"S = \"Hello World\" ;",
+	))
+	assert(t, err == nil, err)
+	pd, err := parser.Parse([]byte("Hello World"))
+	assert(t, err == nil, err)
+	fmt.Println(pd.labels)
+}
+
+func TestCaseRule(t *testing.T) {
 	parser, err := Generate([]byte(
 		"S = \"!!\" | \"Hello World\" | \"!\" ;",
 	))
 	assert(t, err == nil, err)
 	pd, err := parser.Parse([]byte("Hello World"))
+	assert(t, err == nil, err)
+	fmt.Println(pd.labels)
+}
+
+func TestCycleRule(t *testing.T) {
+	parser, err := Generate([]byte(
+		"S = { \"Hello World;\" } ;",
+	))
+	assert(t, err == nil, err)
+	pd, err := parser.Parse([]byte("Hello World;Hello World;"))
 	assert(t, err == nil, err)
 	fmt.Println(pd.labels)
 }

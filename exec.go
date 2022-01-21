@@ -24,7 +24,9 @@ func back(stack *Stack, it Iterator, ret *code) {
 				stack.Push(Frame{f, 0, start, it.GP()})
 				return
 			}
-			it.BT(buf)
+			if *ret == missed {
+				it.BT(buf)
+			}
 			*ret = zero
 		case 'N':
 			if *ret == zero && f.hasNext(i) {

@@ -179,7 +179,7 @@ func bnfFunction(it Iterator) (*function, error) {
 			{typ: 'T', name: "signOr", terminal: termStr("|")},
 		}},
 		// expr2 = "{" rvalue "}" endPart
-		{term{typ: 'N', name: "exprCycle"}, []term{
+		{term{typ: 'N', name: "exprCycle", marked: true}, []term{
 			{typ: 'C', name: "SP"},
 			{typ: 'T', name: "openBrace", terminal: termStr("{")},
 			{typ: 'C', name: "SP"},
