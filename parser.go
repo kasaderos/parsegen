@@ -33,23 +33,26 @@ func Generate(bnf []byte) (*Parser, error) {
 	}
 
 	rules := make([]*Rule, 0)
-	ret := execute(f, it)
-	fmt.Println(it.Data().labels)
-	if ret == missed {
-		return nil, errors.New("not bnf rule")
-	}
 
-	rule, err := generateRules(it)
-	if err != nil {
-		return nil, err
-	}
-	rules = append(rules, rule)
+	for !it.EOF() {
+		ret := execute(f, it)
+		fmt.Println(it.Data().labels)
+		if ret == missed {
+			return nil, errors.New("not bnf rule")
+		}
 
+		rule, err := generateRules(it)
+		if err != nil {
+			return nil, err
+		}
+		it.Data().Reset()
+		rules = append(rules, rule)
+	}
 	f, err = generateFunction(rules)
-	printTree(f)
 	if err != nil {
 		return nil, err
 	}
+	printTree(f)
 
 	return &Parser{f}, nil
 }

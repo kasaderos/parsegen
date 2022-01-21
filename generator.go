@@ -71,6 +71,7 @@ LP:
 		for _, str := range pd.GetAll("string") {
 			if bytes.Equal(item, str) {
 				value := removeQuotes(str)
+				// todo generate name
 				rvalue = append(rvalue, term{typ: 'T', name: value, terminal: termStr(value)})
 				continue LP
 			}
@@ -132,6 +133,7 @@ func generateFunction(rules []*Rule) (*function, error) {
 			if !ok {
 				return nil, fmt.Errorf("not resolved entity %s", subf.name)
 			}
+			subf.typ = f.typ
 
 			if f.marked {
 				subf.marked = true

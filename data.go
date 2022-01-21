@@ -24,6 +24,7 @@ type ParsedData struct {
 
 type Data interface {
 	Data() *ParsedData
+	Reset()
 }
 
 type Labeler interface {
@@ -73,4 +74,10 @@ func (pd *ParsedData) SetEnd(name string, ind int) {
 
 func (pd *ParsedData) Data() *ParsedData {
 	return pd
+}
+
+func (pd *ParsedData) Reset() {
+	for kv := range pd.labels {
+		delete(pd.labels, kv)
+	}
 }
