@@ -66,6 +66,11 @@ LP:
 			continue LP
 		}
 
+		if isTermInteger(item) {
+			rvalue = append(rvalue, term{typ: 'T', name: string(item), terminal: termInteger()})
+			continue LP
+		}
+
 		for _, rid := range pd.GetAll("rid") {
 			if bytes.Equal(item, rid) {
 				rvalue = append(rvalue, term{name: string(item)})
@@ -161,19 +166,23 @@ func isCapital(b byte) bool {
 	return b >= 'A' && b <= 'Z'
 }
 
-func isTermAny(rid []byte, end *byte, includeEnd *bool) bool {
+func isTermAny(rvalue []byte, end *byte, includeEnd *bool) bool {
 	// any(c)
-	if len(rid) == 6 && bytes.HasPrefix(rid, anyPrefix) {
-		if rid[3] == '(' && rid[5] == ')' {
-			*end = rid[4]
+	if len(rvalue) == 6 && bytes.HasPrefix(rvalue, anyPrefix) {
+		if rvalue[3] == '(' && rvalue[5] == ')' {
+			*end = rvalue[4]
 			*includeEnd = false
 			return true
 		}
-		if rid[3] == '[' && rid[5] == ']' {
-			*end = rid[4]
+		if rvalue[3] == '[' && rvalue[5] == ']' {
+			*end = rvalue[4]
 			*includeEnd = true
 			return true
 		}
 	}
 	return false
+}
+
+func isTermInteger(rvalue []byte) bool {
+	return bytes.Equal(rvalue, integerTerm)
 }

@@ -240,7 +240,7 @@ func TestHttpGetRequest(t *testing.T) {
 			"GetMethod = any( );" +
 			"SP = \" \";" +
 			"Url = any( );" +
-			"StatusOk = \"200\";",
+			"StatusOk = integer;",
 	))
 	assert(t, err == nil, err)
 	pd, err := parser.Parse([]byte("GET / 200"))

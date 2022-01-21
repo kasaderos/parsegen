@@ -1,6 +1,7 @@
 package main
 
 var anyPrefix = []byte("any")
+var integerTerm = []byte("integer")
 
 func termStr(s string) tFunc {
 	b := []byte(s)
