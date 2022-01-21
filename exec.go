@@ -60,6 +60,7 @@ func execute(f *function, it Iterator) code {
 			}
 		case 'T':
 			ret = f.call(it)
+			fmt.Println("front: ret", ret.String())
 			back(stack, it, &ret)
 		default:
 			back(stack, it, &ret)

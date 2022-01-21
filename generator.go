@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"unicode"
 )
 
 type term struct {
@@ -14,8 +13,6 @@ type term struct {
 	terminal tFunc
 }
 
-type BNFData struct{}
-
 type Rule struct {
 	lvalue term // non-terminal
 	rvalue []term
@@ -24,16 +21,18 @@ type Rule struct {
 func generateRules(it Iterator) (*Rule, error) {
 	pd := it.Data()
 
-	expr1 := pd.GetLabel("expr1")
-	expr2 := pd.GetLabel("expr2")
-	expr3 := pd.GetLabel("expr3")
+	// TODO do const names
+	base := pd.GetLabel("exprBase")
+	cycle := pd.GetLabel("exprCycle")
+	expr1 := pd.GetLabel("spRvalues")
+	expr2 := pd.GetLabel("orRvalues")
 
 	typ := byte('Z')
-	if expr1.isOnly() {
+	if !base.isEmpty() || expr1.isOnly() {
 		typ = 'N'
-	} else if expr2.isOnly() {
+	} else if !base.isEmpty() && expr2.isOnly() {
 		typ = 'L'
-	} else if expr3.isOnly() {
+	} else if cycle.isOnly() {
 		typ = 'C'
 	}
 
@@ -44,11 +43,12 @@ func generateRules(it Iterator) (*Rule, error) {
 	if len(lid) < 1 {
 		return nil, errors.New("lvalue empty")
 	}
+
 	rule := &Rule{
 		lvalue: term{typ: typ, name: lid},
 	}
 
-	if unicode.IsTitle(rune(lid[0])) {
+	if isCapital(lid[0]) {
 		rule.lvalue.marked = true
 	}
 
@@ -59,7 +59,7 @@ LP:
 			return nil, errors.New("rvalue empty")
 		}
 		for _, rid := range pd.GetAll("rid") {
-			if bytes.Compare(item, rid) == 0 {
+			if bytes.Equal(item, rid) {
 				rvalue = append(rvalue, term{name: string(item)})
 				continue LP
 			}
@@ -69,7 +69,7 @@ LP:
 			return nil, errors.New("str must have at least one character")
 		}
 		for _, str := range pd.GetAll("string") {
-			if bytes.Compare(item, str) == 0 {
+			if bytes.Equal(item, str) {
 				value := removeQuotes(str)
 				rvalue = append(rvalue, term{typ: 'T', name: value, terminal: termStr(value)})
 				continue LP
@@ -88,24 +88,28 @@ func removeQuotes(s []byte) string {
 
 // syntax analyzer
 func generateFunction(rules []*Rule) (*function, error) {
-	funcs := []*function{}
+	lvalueFuncs := []*function{}
 	var initial *function
 	count := 0
+	lvalues := make(map[string]*function, 0)
 	for _, rule := range rules {
 		f := &function{}
 		f.typ = rule.lvalue.typ
 		f.name = rule.lvalue.name
 		f.marked = rule.lvalue.marked
+
+		lvalues[f.name] = f
+
 		for _, rvalue := range rule.rvalue {
 			f.funcs = append(f.funcs, &function{
 				typ:      rvalue.typ,
 				name:     rvalue.name,
 				terminal: rvalue.terminal,
-				marked:   rvalue.marked, // if lvalue marked => all rvalues marked
+				marked:   rvalue.marked,
 			})
 		}
-		funcs = append(funcs, f)
 
+		lvalueFuncs = append(lvalueFuncs, f)
 		// must exactly one
 		if f.name == "S" {
 			initial = f
@@ -118,51 +122,31 @@ func generateFunction(rules []*Rule) (*function, error) {
 
 	// brute force O(n^3)
 	// rules number ~ 100
-	for _, f := range funcs {
-		if f.isTerminal() {
-			if f.existFunc(0) {
-				return nil, errors.New("terminal had sub funcs")
-			}
-			continue
-		}
-		// all sub funcs must be unique
-		// can't be unnamed
-		// funcNames := make(map[string]struct{}, 0)
-		// funcNames[""] = struct{}{}
-		for i, subf := range f.funcs {
-			// if _, ok := funcNames[subf.name]; ok {
-			// return nil, errors.New("all rvalue must be unique")
-			// }
-
+	for _, f := range lvalueFuncs {
+		for _, subf := range f.funcs {
 			if subf.isTerminal() {
-				if subf.existFunc(0) {
-					return nil, errors.New("terminal had sub funcs")
-				}
 				continue
 			}
 
-			if subf.isCycle() && subf.hasNext(0) {
-				return nil, errors.New("cycle has more than one rvalue")
+			f, ok := lvalues[subf.name]
+			if !ok {
+				return nil, fmt.Errorf("not resolved entity %s", subf.name)
 			}
 
-			// funcNames[subf.name] = struct{}{}
-			found := false
-			// find subf from all funcs
-			for _, fn := range funcs {
-				// if it's found append
-				if subf.name == fn.name {
-					subf.funcs = append(subf.funcs, fn.funcs...)
-					found = true
-					break
-				}
-				// TODO check leaf are terminals
-				// use printTree func
+			if f.marked {
+				subf.marked = true
 			}
-			if !found {
-				return nil, errors.New(fmt.Sprintf("not resolved entity %s", subf.name))
-			}
-			f.funcs[i] = subf
+
+			subf.funcs = append(subf.funcs, f.funcs...)
 		}
 	}
+
+	if err := checkBNF(initial); err != nil {
+		return nil, err
+	}
 	return initial, nil
+}
+
+func isCapital(b byte) bool {
+	return b >= 'A' && b <= 'Z'
 }

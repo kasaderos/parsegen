@@ -86,7 +86,7 @@ func TestWithExec1(t *testing.T) {
 	f, err := generateFunction(rules)
 	assert(t, err == nil, err)
 	assert(t, n != 4, fmt.Sprintf("n != 4; n = %d", n))
-	it, _ := NewIterator([]byte("Example"), true)
+	it, _ := NewIterator([]byte("Example"))
 	ret := execute(f, it)
 	assert(t, ret == zero, "ret == err or oef")
 }
@@ -112,7 +112,7 @@ func TestExecuteCycle1(t *testing.T) {
 	}
 	f, err := generateFunction(rules)
 	assert(t, err == nil, err)
-	it, _ := NewIterator([]byte("Example"), true)
+	it, _ := NewIterator([]byte("Example"))
 	ret := execute(f, it)
 	assert(t, ret == zero, "ret true")
 	assert(t, n == 3, fmt.Sprintf("n != 3; n = %d", n))
@@ -131,7 +131,7 @@ func TestBacktrackLogic(t *testing.T) {
 	}
 	f, err := generateFunction(rules)
 	assert(t, err == nil, err)
-	it, err := NewIterator([]byte("AB"), true)
+	it, err := NewIterator([]byte("AB"))
 	assert(t, err == nil, err)
 	ret := execute(f, it)
 	lbls := it.Data().labels
@@ -152,7 +152,7 @@ func TestBacktrackCycle(t *testing.T) {
 	}
 	f, err := generateFunction(rules)
 	assert(t, err == nil, err)
-	it, err := NewIterator([]byte("ABABBC"), true)
+	it, err := NewIterator([]byte("ABABBC"))
 	assert(t, err == nil, err)
 	ret := execute(f, it)
 	lbls := it.Data().labels
@@ -176,26 +176,26 @@ func TestExecuteCycleData(t *testing.T) {
 		}},
 		{term{typ: 'C', name: "A", marked: true}, []term{
 			{typ: 'T', name: "T1", terminal: termStr("AB")},
-			{typ: 'T', name: "T1", terminal: termStr("AB")},
 		}},
 	}
 	f, err := generateFunction(rules)
 	assert(t, err == nil, err)
-	it, err := NewIterator([]byte("  ABAB  ABAB  ABAB  "), true)
+	it, err := NewIterator([]byte("  AB  AB  AB  "))
 	assert(t, err == nil, err)
 	ret := execute(f, it)
+	// printTree(f)
 	lbls := it.Data().labels
 	fmt.Println(lbls)
 	assert(t, len(lbls["A"].i) == 3 && len(lbls["SP"].j) == 4)
 	assert(t, ret == zero, "ret == err")
 }
 
-func TestGenerateRules(t *testing.T) {
+func TestHelloWorld(t *testing.T) {
 	parser, err := Generate([]byte(
-		"S = \"Hello World\"",
+		"S = \"Hello World\" \"!\" ;",
 	))
 	assert(t, err == nil, err)
-	pd, err := parser.Parse([]byte("Hello World"))
+	pd, err := parser.Parse([]byte("Hello World!"))
 	assert(t, err == nil, err)
 	fmt.Println(pd.labels)
 }

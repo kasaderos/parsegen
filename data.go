@@ -8,6 +8,10 @@ func (lbls *label) isOnly() bool {
 	return len(lbls.i) == 1 && len(lbls.j) == 1
 }
 
+func (lbls *label) isEmpty() bool {
+	return len(lbls.i) < 1 && len(lbls.j) < 1
+}
+
 type lex struct {
 	name  string
 	value []byte

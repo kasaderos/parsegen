@@ -43,7 +43,7 @@ type Iterator interface {
 	Data
 }
 
-func NewIterator(data []byte, includeSpaces bool) (Iterator, error) {
+func NewIterator(data []byte) (Iterator, error) {
 	if len(data) == 0 {
 		return nil, errors.New("data is empty")
 	}
@@ -51,53 +51,13 @@ func NewIterator(data []byte, includeSpaces bool) (Iterator, error) {
 		curr: data[0],
 	}
 	pd := &ParsedData{data, make(map[string]label)}
-	if includeSpaces {
-		return &CommonIterator{pd, it}, nil
-	}
-	return &SimpleIterator{pd, it}, nil
+	return &CommonIterator{pd, it}, nil
 }
 
 func IsSpace(b byte) bool {
 	return b == ' ' || b == '\n' || b == '\t'
 }
 
-// with ignoring spaces
-func (it *SimpleIterator) GC() {
-	if it.eof {
-		return
-	}
-	ind := it.ind
-	for !it.eof {
-		if it.ind+1 >= len(it.data) {
-			it.eof = true
-			// not included
-			it.ind = ind + 1
-			return
-		}
-		it.ind++
-		if !IsSpace(it.data[it.ind]) {
-			break
-		}
-	}
-	it.curr = it.data[it.ind]
-}
-
-func (it *SimpleIterator) EOF() bool {
-	return it.eof
-}
-
-func (it *SimpleIterator) CC() byte {
-	return it.curr
-}
-
-func (it *SimpleIterator) GP() int {
-	return it.ind
-}
-
-func (it *SimpleIterator) BT(ind int) {
-	it.ind = ind
-	it.curr = it.data[ind]
-}
 func (it *CommonIterator) GC() {
 	if it.ind+1 >= len(it.data) {
 		it.eof = true

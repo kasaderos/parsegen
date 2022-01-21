@@ -19,7 +19,7 @@ func TestStr(t *testing.T) {
 	}
 	f, err := generateFunction(rules)
 	assert(t, err == nil, err)
-	it, err := NewIterator([]byte(s), true)
+	it, err := NewIterator([]byte(s))
 	assert(t, err == nil, err)
 	execute(f, it)
 	i := it.Data().labels[name].i[0]
@@ -43,7 +43,7 @@ func TestAnyQuoted(t *testing.T) {
 	}
 	f, err := generateFunction(rules)
 	assert(t, err == nil, err)
-	it, err := NewIterator([]byte(s), true)
+	it, err := NewIterator([]byte(s))
 	assert(t, err == nil, err)
 	execute(f, it)
 	i := it.Data().labels[name].i[0]
@@ -67,7 +67,7 @@ func TestID(t *testing.T) {
 	}
 	f, err := generateFunction(rules)
 	assert(t, err == nil, err)
-	it, err := NewIterator([]byte(s), true)
+	it, err := NewIterator([]byte(s))
 	assert(t, err == nil, err)
 	execute(f, it)
 	i := it.Data().labels[name].i[0]
@@ -102,7 +102,7 @@ func TestCombined1(t *testing.T) {
 	}
 	f, err := generateFunction(rules)
 	assert(t, err == nil, err)
-	it, err := NewIterator([]byte(s), true)
+	it, err := NewIterator([]byte(s))
 	assert(t, err == nil, err)
 	execute(f, it)
 	fmt.Println(it.Data().labels)
@@ -161,7 +161,7 @@ func TestCombined2(t *testing.T) {
 	}
 	f, err := generateFunction(rules)
 	assert(t, err == nil, err)
-	it, err := NewIterator([]byte(s), true)
+	it, err := NewIterator([]byte(s))
 	assert(t, err == nil, err)
 	execute(f, it)
 	fmt.Println(it.Data().labels)

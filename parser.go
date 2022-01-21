@@ -10,7 +10,7 @@ type Parser struct {
 }
 
 func (p *Parser) Parse(data []byte) (*ParsedData, error) {
-	dataIt, err := NewIterator(data, true)
+	dataIt, err := NewIterator(data)
 	if err != nil {
 		return nil, err
 	}
@@ -22,21 +22,19 @@ func (p *Parser) Parse(data []byte) (*ParsedData, error) {
 }
 
 func Generate(bnf []byte) (*Parser, error) {
-	it, err := NewIterator(bnf, true)
+	it, err := NewIterator(bnf)
 	if err != nil {
 		return nil, err
 	}
 
-	f, err := bnfparser(it)
+	f, err := bnfFunction(it)
 	if err != nil {
 		return nil, err
 	}
 
 	rules := make([]*Rule, 0)
-	// for
 	ret := execute(f, it)
 	fmt.Println(it.Data().labels)
-	printTree(f)
 	if ret == missed {
 		return nil, errors.New("not bnf rule")
 	}
@@ -47,9 +45,8 @@ func Generate(bnf []byte) (*Parser, error) {
 	}
 	rules = append(rules, rule)
 
-	fmt.Println(rule.lvalue.name)
 	f, err = generateFunction(rules)
-
+	printTree(f)
 	if err != nil {
 		return nil, err
 	}

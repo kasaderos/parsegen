@@ -8,11 +8,11 @@ func assert(t *testing.T, b bool, s ...interface{}) {
 	if s != nil {
 		err, ok := s[0].(error)
 		if ok {
-			t.Errorf("assert failed %v\n", err.Error())
+			t.Fatalf("assert failed %v\n", err.Error())
 		}
 	}
 	if !b {
-		t.Errorf("assert failed %v\n", s)
+		t.Fatalf("assert failed %v\n", s)
 	}
 }
 
@@ -25,7 +25,7 @@ func TestExecuteSimple(t *testing.T) {
 			{typ: 'T', terminal: func(it Iterator) code { n++; return zero }},
 		},
 	}
-	it, _ := NewIterator([]byte("Example"), true)
+	it, _ := NewIterator([]byte("Example"))
 	ret := execute(&f, it)
 	assert(t, n == 2)
 	assert(t, ret == zero)
@@ -48,7 +48,7 @@ func TestExecuteComplex1(t *testing.T) {
 			{typ: 'T', terminal: func(it Iterator) code { n++; return zero }},
 		},
 	}
-	it, _ := NewIterator([]byte("Example"), true)
+	it, _ := NewIterator([]byte("Example"))
 	ret := execute(&f, it)
 	assert(t, n == 4, "n != 4")
 	assert(t, ret == zero)
@@ -68,7 +68,7 @@ func TestExecuteComplex2(t *testing.T) {
 	)
 	f2.funcs = append(f2.funcs, &function{typ: 'T', terminal: func(it Iterator) code { n++; return zero }})
 	f.funcs = append(f.funcs, &f2)
-	it, _ := NewIterator([]byte("Example"), true)
+	it, _ := NewIterator([]byte("Example"))
 	ret := execute(&f, it)
 	assert(t, n == 1)
 	assert(t, ret == zero)
@@ -85,7 +85,7 @@ func TestExecuteLogic1(t *testing.T) {
 		},
 	},
 	)
-	it, _ := NewIterator([]byte("Example"), true)
+	it, _ := NewIterator([]byte("Example"))
 	ret := execute(&f, it)
 	assert(t, n == 1)
 	assert(t, ret == zero)
@@ -102,7 +102,7 @@ func TestExecuteLogic2(t *testing.T) {
 		},
 	},
 	)
-	it, _ := NewIterator([]byte("Example"), true)
+	it, _ := NewIterator([]byte("Example"))
 	ret := execute(&f, it)
 	assert(t, n == 2)
 	assert(t, ret == zero)
@@ -120,7 +120,7 @@ func TestExecuteLogic3(t *testing.T) {
 		},
 	},
 	)
-	it, _ := NewIterator([]byte("Example"), true)
+	it, _ := NewIterator([]byte("Example"))
 	ret := execute(&f, it)
 	assert(t, n == 3)
 	assert(t, ret == zero)
@@ -140,7 +140,7 @@ func TestExecuteLogic4(t *testing.T) {
 	)
 	f2.funcs = append(f2.funcs, &function{typ: 'T', terminal: func(it Iterator) code { n++; return zero }})
 	f.funcs = append(f.funcs, &f2)
-	it, _ := NewIterator([]byte("Example"), true)
+	it, _ := NewIterator([]byte("Example"))
 	ret := execute(&f, it)
 	assert(t, n == 3)
 	assert(t, ret == zero)
@@ -160,7 +160,7 @@ func TestExecuteLogicBad1(t *testing.T) {
 	)
 	f2.funcs = append(f2.funcs, &function{typ: 'T', name: "D", terminal: func(it Iterator) code { n++; return missed }})
 	f.funcs = append(f.funcs, &f2)
-	it, _ := NewIterator([]byte("Example"), true)
+	it, _ := NewIterator([]byte("Example"))
 	ret := execute(&f, it)
 	assert(t, n == 3)
 	assert(t, ret == missed)
@@ -178,7 +178,7 @@ func TestExecuteLogicBad2(t *testing.T) {
 		},
 	},
 	)
-	it, _ := NewIterator([]byte("Example"), true)
+	it, _ := NewIterator([]byte("Example"))
 	ret := execute(&f, it)
 	assert(t, n == 3)
 	assert(t, ret == missed)
@@ -197,7 +197,7 @@ func TestExecuteCycle(t *testing.T) {
 	}})
 	f.funcs = append(f.funcs, &f)
 
-	it, _ := NewIterator([]byte("Example"), true)
+	it, _ := NewIterator([]byte("Example"))
 	execute(&f, it)
 	assert(t, n == 3, n)
 }

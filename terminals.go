@@ -10,9 +10,6 @@ func termStr(s string) tFunc {
 			}
 			it.GC()
 		}
-		if it.EOF() {
-			return eof
-		}
 		return zero
 	}
 }
@@ -27,7 +24,6 @@ func isDigit(b byte) bool {
 
 func termID() tFunc {
 	return func(it Iterator) code {
-		i := it.GP()
 		if !isAlpha(it.CC()) {
 			return missed
 		}
@@ -35,39 +31,19 @@ func termID() tFunc {
 		for !it.EOF() && (isAlpha(it.CC()) || isDigit(it.CC())) {
 			it.GC()
 		}
-		// true if empty or eof
-		if i == it.GP() {
-			// it.SetError("ID[T]: empty")
-			return missed
-		}
-		if it.EOF() {
-			return eof
-		}
-		return zero
-	}
-}
 
-func termEmpty() tFunc {
-	return func(it Iterator) code {
-		if it.EOF() {
-			return eof
-		}
 		return zero
 	}
 }
 
 func termSpace() tFunc {
 	return func(it Iterator) code {
-		i := it.GP()
 		for !it.EOF() && IsSpace(it.CC()) {
 			it.GC()
 		}
+
 		if it.EOF() {
 			return eof
-		}
-
-		if i == it.GP() {
-			return missed
 		}
 		return zero
 	}
@@ -75,13 +51,8 @@ func termSpace() tFunc {
 
 func termInteger() tFunc {
 	return func(it Iterator) code {
-		i := it.GP()
 		for !it.EOF() && isDigit(it.CC()) {
 			it.GC()
-		}
-		if i == it.GP() {
-			// it.SetError("Integer[T]: empty")
-			return missed
 		}
 		if it.EOF() {
 			return eof
@@ -93,7 +64,6 @@ func termInteger() tFunc {
 // end symbol
 func termAny(end byte, includeEnd bool) tFunc {
 	return func(it Iterator) code {
-		i := it.GP()
 		for !it.EOF() && it.CC() != end {
 			it.GC()
 		}
@@ -101,13 +71,7 @@ func termAny(end byte, includeEnd bool) tFunc {
 		if includeEnd {
 			it.GC()
 		}
-		if i == it.GP() {
-			// it.SetError("Any[T]: empty")
-			return missed
-		}
-		if it.EOF() {
-			return eof
-		}
+
 		return zero
 	}
 }
@@ -119,7 +83,6 @@ func termAnyQuoted() tFunc {
 			return missed
 		}
 		it.GC()
-		i := it.GP()
 		for !it.EOF() {
 			if it.CC() == '"' {
 				break
@@ -127,13 +90,6 @@ func termAnyQuoted() tFunc {
 			it.GC()
 		}
 		it.GC()
-		if i >= it.GP()-1 {
-			// it.SetError("AnyQuoted[T]: empty")
-			return missed
-		}
-		if it.EOF() {
-			return eof
-		}
 		return zero
 	}
 }

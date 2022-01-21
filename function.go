@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 var S = function{}
 
@@ -14,6 +17,12 @@ const (
 
 type tFunc func(Iterator) code
 
+var codes = []string{"missed", "eof", "zero"}
+
+func (c code) String() string {
+	return codes[c]
+}
+
 // lvalue = rvalue ~
 // function = instructions
 type function struct {
@@ -26,7 +35,14 @@ type function struct {
 }
 
 func (f *function) call(it Iterator) code {
-	return f.terminal(it)
+	i := it.GP()
+	ret := f.terminal(it)
+	if i == it.GP() {
+		return missed
+	} else if it.EOF() {
+		return eof
+	}
+	return ret
 }
 
 func (f *function) isTerminal() bool {
@@ -66,4 +82,27 @@ func recPrint(f *function, i int) {
 }
 func printTree(f *function) {
 	recPrint(f, 1)
+}
+
+func checkBNF(f *function) error {
+	if f.isTerminal() {
+		if f.hasNext(0) {
+			return errors.New("terminal has child")
+		}
+		return nil
+	}
+
+	if f.isCycle() && f.hasNext(0) {
+		return errors.New("cycle has more child than one")
+	}
+
+	for _, fn := range f.funcs {
+		if fn == f || fn.name == f.name {
+			return errors.New("found recursion")
+		}
+		if err := checkBNF(fn); err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -114,71 +114,106 @@ const lid = "lid"
 const rid = "rid"
 const rstring = "string"
 
-func bnfparser(it Iterator) (*function, error) {
+func bnfFunction(it Iterator) (*function, error) {
 	rules := []*Rule{
+		// S = rule
 		{term{typ: 'N', name: "S", marked: true}, []term{
 			{typ: 'N', name: "rule", marked: true},
 		}},
-		// rule = lvalue "=" expr ";" ;
+		// rule = lvalue "=" expr ;
 		{term{typ: 'N', name: "rule", marked: true}, []term{
-			{typ: 'C', name: "SP"},
-			{typ: 'T', name: lid, marked: true, terminal: termID()},
-			{typ: 'C', name: "SP"},
-			{typ: 'T', name: "assign", marked: true, terminal: termStr("=")},
-			{typ: 'C', name: "SP"},
-			{typ: 'L', name: "expr", marked: true},
-			{typ: 'C', name: "SP"},
-			{typ: 'T', name: "end", marked: true, terminal: termStr(";")},
+			{typ: 'N', name: "lvalue"},
+			{typ: 'N', name: "assign"},
+			{typ: 'L', name: "expr"},
 		}},
 		{term{typ: 'L', name: "expr", marked: true}, []term{
-			{typ: 'N', name: "expr1", marked: true},
-			{typ: 'N', name: "expr2", marked: true},
-			{typ: 'N', name: "expr3", marked: true},
+			{typ: 'N', name: "exprBase"},
+			{typ: 'N', name: "exprCycle"},
 		}},
-		// rvalue SP rvalue { SP rvalue }
-		{term{typ: 'N', name: "expr1", marked: true}, []term{
-			{typ: 'L', name: "rvalue", marked: true},
-			{typ: 'N', name: "SP1"},
-			{typ: 'L', name: "rvalue", marked: true},
-			{typ: 'C', name: "rvalues", marked: true},
+		// exprBase = SP rvalue lastPart
+		{term{typ: 'N', name: "exprBase", marked: true}, []term{
+			{typ: 'C', name: "SP"},
+			{typ: 'L', name: "rvalue"},
+			{typ: 'L', name: "lastPart"},
 		}},
-		{term{typ: 'C', name: "rvalues"}, []term{
+		// lastPart = endPart | spRvalues | orRvalues
+		{term{typ: 'L', name: "lastPart"}, []term{
+			{typ: 'N', name: "endPart"},
+			{typ: 'N', name: "spRvalues"},
+			{typ: 'N', name: "orRvalues"},
+		}},
+		// spRvalues = spRvalue { spRvalue } endPart
+		{term{typ: 'N', name: "spRvalues", marked: true}, []term{
+			{typ: 'N', name: "spRvalue"},
+			{typ: 'C', name: "spRvalueCycle"},
+			{typ: 'N', name: "endPart"},
+		}},
+		// orRvalues = or rvalue { or rvalue } endPart
+		{term{typ: 'N', name: "orRvalues", marked: true}, []term{
+			{typ: 'N', name: "orRvalue"},
+			{typ: 'C', name: "orRvalueCycle"},
+			{typ: 'N', name: "endPart"},
+		}},
+		// spRvalue = SP1 rvalue
+		{term{typ: 'N', name: "spRvalue"}, []term{
 			{typ: 'N', name: "SP1"},
 			{typ: 'L', name: "rvalue"},
 		}},
-		// "{" rvalue "}"
-		{term{typ: 'N', name: "expr2", marked: true}, []term{
-			{typ: 'T', name: "openBrace", marked: true, terminal: termStr("{")},
-			{typ: 'C', name: "SP"},
-			{typ: 'L', name: "rvalue", marked: true},
-			{typ: 'C', name: "SP"},
-			{typ: 'T', name: "closeBrace", marked: true, terminal: termStr("}")},
+		// spRvalueCycle = { SP1 rvalue }
+		{term{typ: 'C', name: "spRvalueCycle"}, []term{
+			{typ: 'N', name: "spRvalue"},
 		}},
-		// rvalue "|" rvalue { "|" rvalue }
-		{term{typ: 'N', name: "expr3", marked: true}, []term{
+		// orRvalue = or SP rvalue
+		{term{typ: 'N', name: "orRvalue"}, []term{
+			{typ: 'N', name: "or"},
+			{typ: 'C', name: "SP"},
 			{typ: 'L', name: "rvalue"},
-			{typ: 'N', name: "rvalue1", marked: true},
-			{typ: 'C', name: "rvalue1S", marked: true},
 		}},
-		{term{typ: 'N', name: "rvalue1", marked: true}, []term{
+		// orRvalueCycle = { or rvalue }
+		{term{typ: 'C', name: "orRvalueCycle"}, []term{
+			{typ: 'N', name: "orRvalue"},
+		}},
+		// or =  SP  "|"
+		{term{typ: 'N', name: "or"}, []term{
 			{typ: 'C', name: "SP"},
-			{typ: 'T', name: "signOr", marked: true, terminal: termStr("|")},
+			{typ: 'T', name: "signOr", terminal: termStr("|")},
+		}},
+		// expr2 = "{" rvalue "}" endPart
+		{term{typ: 'N', name: "exprCycle"}, []term{
 			{typ: 'C', name: "SP"},
-			{typ: 'L', name: "rvalue", marked: true},
+			{typ: 'T', name: "openBrace", terminal: termStr("{")},
+			{typ: 'C', name: "SP"},
+			{typ: 'L', name: "rvalue"},
+			{typ: 'C', name: "SP"},
+			{typ: 'T', name: "closeBrace", terminal: termStr("}")},
+			{typ: 'N', name: "endPart"},
 		}},
-		{term{typ: 'C', name: "rvalue1S", marked: true}, []term{
-			{typ: 'N', name: "rvalue1"},
-		}},
+		// rvalue = rid | string
 		{term{typ: 'L', name: "rvalue", marked: true}, []term{
 			{typ: 'T', name: rid, marked: true, terminal: termID()},
 			{typ: 'T', name: rstring, marked: true, terminal: termAnyQuoted()},
 		}},
+		// SP = {sp}
 		{term{typ: 'C', name: "SP"}, []term{
 			{typ: 'T', name: "sp", terminal: termSpace()},
 		}},
+		// SP1 = sp {sp}
 		{term{typ: 'N', name: "SP1"}, []term{
 			{typ: 'T', name: "sp", terminal: termSpace()},
 			{typ: 'C', name: "SP"},
+		}},
+		// endPart = {sp} ";"
+		{term{typ: 'N', name: "endPart"}, []term{
+			{typ: 'C', name: "SP"},
+			{typ: 'T', name: "end", marked: true, terminal: termStr(";")},
+		}},
+		{term{typ: 'N', name: "lvalue"}, []term{
+			{typ: 'C', name: "SP"},
+			{typ: 'T', name: lid, marked: true, terminal: termID()},
+		}},
+		{term{typ: 'N', name: "assign"}, []term{
+			{typ: 'C', name: "SP"},
+			{typ: 'T', name: "assignMark", marked: true, terminal: termStr("=")},
 		}},
 	}
 	f, err := generateFunction(rules)
