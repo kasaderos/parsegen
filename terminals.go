@@ -1,5 +1,7 @@
 package main
 
+var anyPrefix = []byte("any")
+
 func termStr(s string) tFunc {
 	b := []byte(s)
 	return func(it Iterator) code {
@@ -10,6 +12,28 @@ func termStr(s string) tFunc {
 			}
 			it.GC()
 		}
+		return zero
+	}
+}
+
+// any(c), any[c], where c is character
+// todo add digit, integer ...
+func termBasicAny() tFunc {
+	return func(it Iterator) code {
+		for _, c := range anyPrefix {
+			if c != it.CC() {
+				return missed
+			}
+			it.GC()
+		}
+		c1 := it.CC()
+		it.GC()
+		it.GC()
+		c2 := it.CC()
+		if !(c1 == '(' && c2 == ')' || c1 == '[' && c2 == ']') {
+			return missed
+		}
+		it.GC()
 		return zero
 	}
 }
@@ -62,6 +86,7 @@ func termInteger() tFunc {
 }
 
 // end symbol
+// Any(:)
 func termAny(end byte, includeEnd bool) tFunc {
 	return func(it Iterator) code {
 		for !it.EOF() && it.CC() != end {

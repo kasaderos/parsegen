@@ -37,10 +37,11 @@ type function struct {
 func (f *function) call(it Iterator) code {
 	i := it.GP()
 	ret := f.terminal(it)
+	if it.EOF() {
+		return eof
+	}
 	if i == it.GP() {
 		return missed
-	} else if it.EOF() {
-		return eof
 	}
 	return ret
 }

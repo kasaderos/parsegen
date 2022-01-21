@@ -58,6 +58,14 @@ LP:
 		if len(item) < 1 {
 			return nil, errors.New("rvalue empty")
 		}
+		// check is rid any
+		endSymbol := byte(0)
+		includeFlag := false
+		if isTermAny(item, &endSymbol, &includeFlag) {
+			rvalue = append(rvalue, term{typ: 'T', name: string(item), terminal: termAny(endSymbol, includeFlag)})
+			continue LP
+		}
+
 		for _, rid := range pd.GetAll("rid") {
 			if bytes.Equal(item, rid) {
 				rvalue = append(rvalue, term{name: string(item)})
@@ -151,4 +159,21 @@ func generateFunction(rules []*Rule) (*function, error) {
 
 func isCapital(b byte) bool {
 	return b >= 'A' && b <= 'Z'
+}
+
+func isTermAny(rid []byte, end *byte, includeEnd *bool) bool {
+	// any(c)
+	if len(rid) == 6 && bytes.HasPrefix(rid, anyPrefix) {
+		if rid[3] == '(' && rid[5] == ')' {
+			*end = rid[4]
+			*includeEnd = false
+			return true
+		}
+		if rid[3] == '[' && rid[5] == ']' {
+			*end = rid[4]
+			*includeEnd = true
+			return true
+		}
+	}
+	return false
 }

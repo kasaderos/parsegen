@@ -113,6 +113,7 @@ package main
 const lid = "lid"
 const rid = "rid"
 const rstring = "string"
+const basicTerm = "basicTerm"
 
 func bnfFunction(it Iterator) (*function, error) {
 	rules := []*Rule{
@@ -189,7 +190,9 @@ func bnfFunction(it Iterator) (*function, error) {
 			{typ: 'N', name: "endPart"},
 		}},
 		// rvalue = rid | string
+		// rid can be basic terminal: any(c), any[c], todo: integer, alpha, digit
 		{term{typ: 'L', name: "rvalue", marked: true}, []term{
+			{typ: 'T', name: basicTerm, marked: true, terminal: termBasicAny()},
 			{typ: 'T', name: rid, marked: true, terminal: termID()},
 			{typ: 'T', name: rstring, marked: true, terminal: termAnyQuoted()},
 		}},

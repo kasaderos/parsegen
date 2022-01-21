@@ -229,6 +229,23 @@ func TestTwoRules(t *testing.T) {
 	pd, err := parser.Parse([]byte("Hello World!!!"))
 	assert(t, err == nil, err)
 	fmt.Println(pd.labels)
+	pd, err = parser.Parse([]byte("!!!"))
+	assert(t, err == nil, err)
+	fmt.Println(pd.labels)
+}
+
+func TestHttpGetRequest(t *testing.T) {
+	parser, err := Generate([]byte(
+		"S = GetMethod SP Url SP StatusOk;" +
+			"GetMethod = any( );" +
+			"SP = \" \";" +
+			"Url = any( );" +
+			"StatusOk = \"200\";",
+	))
+	assert(t, err == nil, err)
+	pd, err := parser.Parse([]byte("GET / 200"))
+	assert(t, err == nil, err)
+	fmt.Println(pd.labels)
 }
 
 // 	parser, err := Generate([]byte(
