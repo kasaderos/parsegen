@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-var Debug = true
+var Debug = false
 
 func back(stack *Stack, it Iterator, ret *code) {
 	for !stack.Empty() {

@@ -74,23 +74,26 @@ key-field = "k=" key-type crlf ;
 attribute-fields-C0 = { attribute-fields } ;
 attribute-fields = "a=" Attribute crlf ;
 				
-media-descriptions-C0 = { Media-descriptions } ;
-Media-descriptions = media-field 
-							information-field
+media-descriptions-C0 = { media-descriptions } ;
+media-descriptions = media-field 
+							information-field-L1
 							connection-field-C0
-							bandwidth-fields
+							bandwidth-fields-C0
 							key-field-L1
 							attribute-fields-C0 ;
 
 connection-field-C0 = { connection-field } ;
 				
 media-field = "m=" Media space Port backslash-integer-L1 
-										space proto space-fmt crlf ;
+										space Mproto space-fmt crlf ;
+
+Mproto = proto ;
 backslash-integer-L1 = backslash-integer | empty ;
 backslash-integer = "/" integer ;
 space-fmt = spfmt spfmt-C0 ;
 spfmt = space fmt ;
 spfmt-C0 = { spfmt } ;
+
 
 username = non-ws-string ;
 sess-id = integer1 ; 
@@ -116,7 +119,8 @@ sp-trait-digit-C1 = sp-trait-digit sp-trait-digit-C0 ;
 sp-trait-digit-C0 = { sp-trait-digit } ;
 sp-trait-digit = space | "-" | digit ;
 
-Connection-address =  multicast-address | unicast-address ;
+Connection-address = any(0x0d) ;
+Connection-addressDetailTODO =  multicast-address | unicast-address ;
 
 bwtype = token ;
 bandwidth = integer ;

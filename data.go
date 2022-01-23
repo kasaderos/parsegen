@@ -80,12 +80,12 @@ func (pd *ParsedData) Data() *ParsedData {
 
 func (pd *ParsedData) Print() {
 	for key, value := range pd.labels {
-		if value.isEmpty() {
+		if value.isEmpty() || key == "S" {
 			continue
 		}
 		fmt.Printf("%s : \n", key)
 		for i := 0; i < len(value.i); i++ {
-			fmt.Printf("\t\t%s\n", pd.data[value.i[0]:value.j[0]])
+			fmt.Printf("\t\t%s\n", pd.data[value.i[i]:value.j[i]])
 		}
 	}
 }

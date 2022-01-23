@@ -22,6 +22,21 @@ func (p *Parser) Parse(data []byte) (*ParsedData, error) {
 	return dataIt.Data(), nil
 }
 
+func (p *Parser) ParseAll(data []byte) (*ParsedData, error) {
+	dataIt, err := NewIterator(data)
+	if err != nil {
+		return nil, err
+	}
+
+	for !dataIt.EOF() {
+		if execute(p.f, dataIt) == missed {
+			return nil, errors.New("exec data error")
+		}
+		dataIt.Data().Print()
+	}
+	return dataIt.Data(), nil
+}
+
 func Generate(bnf []byte) (*Parser, error) {
 	it, err := NewIterator(bnf)
 	if err != nil {
