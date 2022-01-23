@@ -1,7 +1,7 @@
 S = session-description ;
-session-description = proto-version
-					origin-field
-					session-name-field
+session-description = Proto-version
+					Origin-field
+					Session-name-field
 					information-field-L1
 					uri-field-L1
 					email-fields-C0
@@ -13,20 +13,20 @@ session-description = proto-version
 					attribute-fields-C0
 					media-descriptions-C0 ;
 
-proto-version = "v=" digit-C1 CRLF ; 
-origin-field = "o=" username SP sess-id SP sess-version SP
+Proto-version = "v=" digit-C1 CRLF ; 
+Origin-field = "o=" username SP sess-id SP sess-version SP
 					nettype SP addrtype SP unicast-address CRLF ;
 
 digit-C1 = digit digits ;
 digit = 0x30-39 ;
 
-session-name-field =  "c=" text CRLF ;
+Session-name-field =  "c=" text CRLF ;
 
 information-field-L1 = information-field | empty ;
 information-field = "i=" text CRLF ;	
 
-uri-field-L1 = uri-field | empty ; 
-uri-field = "u=" uri CRLF ;
+uri-field-L1 = Uri-field | empty ; 
+Uri-field = "u=" uri CRLF ;
 
 email-fields-C0 = { email-fields } ;	
 email-fields = "e=" email-address CRLF ;
@@ -34,9 +34,9 @@ email-fields = "e=" email-address CRLF ;
 phone-fields-C0 = { phone-fields } ;
 phone-fields = "p=" phone-number CRLF ;
 
-connection-field-L1 = connection-field | empty ; 
-connection-field = "c=" nettype SP addrtype SP
-					connection-address CRLF ; 
+connection-field-L1 = Connection-field | empty ; 
+Connection-field = "c=" nettype SP addrtype SP
+					Connection-address CRLF ; 
 
 bandwidth-fields-C0 = { bandwidth-fields } ; 
 bandwidth-fields = "b=" bwtype ":" bandwidth CRLF ; 
@@ -68,19 +68,19 @@ key-field-L1 = key-field | empty ;
 key-field = "k=" key-type CRLF ; 
 				
 attribute-fields-C0 = { attribute-fields } ;
-attribute-fields = "a=" attribute CRLF ;
+attribute-fields = "a=" Attribute CRLF ;
 				
-media-descriptions-C0 = { media-descriptions } ;
-media-descriptions = media-field 
+media-descriptions-C0 = { Media-descriptions } ;
+Media-descriptions = media-field 
 							information-field
 							connection-field-C0
 							bandwidth-fields
 							key-field-L1
 							attribute-fields-C0 ;
 
-connection-field-C0 = { connection-field } ;
+connection-field-C0 = { Connection-field } ;
 				
-media-field = "m=" media SP port backslash-integer-L1 
+media-field = "m=" Media SP Port backslash-integer-L1 
 										SP proto space-fmt CRLF ;
 backslash-integer-L1 = backslash-integer | empty ;
 backslash-integer = "/" integer ;
@@ -112,7 +112,7 @@ sp-trait-digit-C1 = sp-trait-digit sp-trait-digit-C0 ;
 sp-trait-digit-C0 = { sp-trait-digit } ;
 sp-trait-digit = SP | "-" | digit ;
 
-connection-address =  multicast-address | unicast-address ;
+Connection-address =  multicast-address | unicast-address ;
 
 bwtype = token ;
 bandwidth = integer ;
@@ -148,17 +148,17 @@ base64-char = alpha | digit | "+" | "/" ;
 2base64-char = base64-char base64-char ;
 3base64-char = base64-char 2base64-char;
 
-attribute = att-field-value | att-field ;
+Attribute = att-field-value | att-field ;
 
 att-field-value = att-field ":" att-value ;
 att-field = token ;
 att-value = byte-string ;
-media = token ; 
+Media = token ; 
 fmt = token ;
 proto = token backslash-tokens1 ;
 backslash-tokens1 = { backslash-tokens } ;
 backslash-tokens = "/" token ;
-port = integer ;
+Port = integer ;
 unicast-address = iP4-address | iP6-address | fQDN | extn-addr ;
 
 multicast-address = iP4-multicast | iP6-multicast | fQDN
