@@ -1,4 +1,4 @@
-package main
+package parsegen
 
 import (
 	"errors"
@@ -21,6 +21,7 @@ func (p *Parser) Parse(data []byte) (*ParsedData, error) {
 	return dataIt.Data(), nil
 }
 
+// ParseAll parses data until it reaches the end
 func (p *Parser) ParseAll(data []byte) (*ParsedData, error) {
 	dataIt, err := NewIterator(data)
 	if err != nil {
@@ -36,6 +37,7 @@ func (p *Parser) ParseAll(data []byte) (*ParsedData, error) {
 	return dataIt.Data(), nil
 }
 
+// Generate creates a new parser by given bnf
 func Generate(bnf []byte) (*Parser, error) {
 	it, err := NewIterator(bnf)
 	if err != nil {
@@ -59,7 +61,7 @@ func Generate(bnf []byte) (*Parser, error) {
 		if err != nil {
 			return nil, err
 		}
-		it.Data().Reset()
+		it.Data().Clean()
 		rules = append(rules, rule)
 		log.Println("appended rule", rule.lvalue.name)
 	}

@@ -1,4 +1,4 @@
-package main
+package parsegen
 
 var anyPrefix = []byte("any")
 var integerTerm = []byte("integer")

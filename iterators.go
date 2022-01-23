@@ -1,4 +1,4 @@
-package main
+package parsegen
 
 import (
 	"errors"
@@ -17,15 +17,6 @@ func (it *IteratorStruct) SetError(s string) {
 	log.Println(it.err)
 }
 
-func (it *IteratorStruct) HasError() bool {
-	return it.err != nil
-}
-
-type SimpleIterator struct {
-	*ParsedData
-	IteratorStruct
-}
-
 type CommonIterator struct {
 	*ParsedData
 	IteratorStruct
@@ -38,7 +29,6 @@ type Iterator interface {
 	EOF() bool
 	BT(int)
 	SetError(string)
-	HasError() bool
 	Labeler
 	Data
 }

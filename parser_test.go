@@ -1,4 +1,4 @@
-package main
+package parsegen
 
 import (
 	"io"
@@ -6,12 +6,10 @@ import (
 	"testing"
 )
 
-func TestParser(t *testing.T) {
-	f, err := bnfFunction(nil)
-	assert(t, err == nil, err)
-	printTree(f)
-}
-
+// TestSDPParser tests generated parser based on ./sdp.bnf.
+// Our goal is to pull out ports and ip addresses from SIP-SDP call between
+// two callers.
+// More about SDP see in rfc4566
 func TestSDPParser(t *testing.T) {
 	f, err := os.Open("sdp.bnf")
 	assert(t, err == nil)
@@ -52,9 +50,9 @@ func TestSDPParser(t *testing.T) {
 
 	pd, err := parser.Parse([]byte(input))
 	assert(t, err == nil, err)
-	pd.Data().Print()
 
-	pd, err = parser.Parse([]byte(input))
-	assert(t, err == nil, err)
-	pd.Data().Print()
+	// check first port
+	// Get returns first instance of Port
+	assert(t, string(pd.Get("Port")) == "5004")
+	assert(t, string(pd.Get("Connection-address")) == "239.69.22.33/32")
 }

@@ -1,4 +1,4 @@
-package main
+package parsegen
 
 import "fmt"
 
@@ -41,8 +41,8 @@ func back(stack *Stack, it Iterator, ret *code) {
 		}
 
 		if f.marked && *ret != missed {
-			it.SetStart(f.name, start)
-			it.SetEnd(f.name, it.GP())
+			it.AppendStart(f.name, start)
+			it.AppendEnd(f.name, it.GP())
 		}
 	}
 }

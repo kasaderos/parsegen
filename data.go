@@ -1,4 +1,4 @@
-package main
+package parsegen
 
 import "fmt"
 
@@ -19,6 +19,22 @@ type lex struct {
 	value []byte
 }
 
+// ParsedData is a structure that contains indices of exported entities.
+// For example:
+// S = Hello " " World;
+// Hello = "hello" ;
+// World = "world!!!" ;
+// Hello, World entities are exported (titled)
+// Then, with the input data "hello world!!!", we have indices,
+// Hello : [0, 5), World : [5, 13)
+//
+// If entites cycled then we have indices [i0, j0], [i1, j1] ...
+// Example :
+// S = CycledAB ;
+// CycledAB = { AB } ;
+// AB = "AB" ;
+// input : "ABAB"
+// AB contains indices [0, 2], [2, 4]
 type ParsedData struct {
 	data   []byte
 	labels map[string]label // lvalue : labels
@@ -26,32 +42,37 @@ type ParsedData struct {
 
 type Data interface {
 	Data() *ParsedData
-	Reset()
+	Get(string) []byte
+	GetAll(string) [][]byte
+	Clean()
 }
 
 type Labeler interface {
-	SetStart(string, int)
-	SetEnd(string, int)
-	Get(string) []byte
-	GetAll(string) [][]byte
+	AppendStart(string, int)
+	AppendEnd(string, int)
 }
 
-// read only
-func (pd *ParsedData) Get(key string) []byte {
-	lbl, ok := pd.labels[key]
+// Get returns the first parsed subbytes of exported entity.
+// IMPORTANT: This function SLICES input slice bytes.
+// The result is READ ONLY data.
+// If you want to change you have to copy
+func (pd *ParsedData) Get(entity string) []byte {
+	lbl, ok := pd.labels[entity]
 	if !ok || len(lbl.i) < 1 || len(lbl.j) < 1 {
 		return nil
 	}
 	return pd.data[lbl.i[0]:lbl.j[0]]
 }
 
+// GetLabel returns a label from given key.
 func (pd *ParsedData) GetLabel(key string) label {
 	lbl, _ := pd.labels[key]
 	return lbl
 }
 
-func (pd *ParsedData) GetAll(key string) [][]byte {
-	lbl, ok := pd.labels[key]
+// GetAll returns all entries of exported entity.
+func (pd *ParsedData) GetAll(entity string) [][]byte {
+	lbl, ok := pd.labels[entity]
 	if !ok || len(lbl.i) < 1 || len(lbl.j) < 1 {
 		return nil
 	}
@@ -62,13 +83,13 @@ func (pd *ParsedData) GetAll(key string) [][]byte {
 	return all
 }
 
-func (pd *ParsedData) SetStart(name string, ind int) {
+func (pd *ParsedData) AppendStart(name string, ind int) {
 	labels := pd.labels[name]
 	labels.i = append(labels.i, ind)
 	pd.labels[name] = labels
 }
 
-func (pd *ParsedData) SetEnd(name string, ind int) {
+func (pd *ParsedData) AppendEnd(name string, ind int) {
 	labels := pd.labels[name]
 	labels.j = append(labels.j, ind)
 	pd.labels[name] = labels
@@ -78,6 +99,7 @@ func (pd *ParsedData) Data() *ParsedData {
 	return pd
 }
 
+// Print displays exported parsed entities
 func (pd *ParsedData) Print() {
 	for key, value := range pd.labels {
 		if value.isEmpty() || key == "S" {
@@ -90,7 +112,8 @@ func (pd *ParsedData) Print() {
 	}
 }
 
-func (pd *ParsedData) Reset() {
+// Clean cleans label buffers
+func (pd *ParsedData) Clean() {
 	for kv := range pd.labels {
 		delete(pd.labels, kv)
 	}

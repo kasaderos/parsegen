@@ -1,4 +1,4 @@
-package main
+package parsegen
 
 import (
 	"fmt"
@@ -26,7 +26,6 @@ func TestStr(t *testing.T) {
 	j := it.Data().labels[name].j[0]
 	assert(t, i == 0, i)
 	assert(t, j == 8, j)
-	assert(t, !it.HasError())
 }
 
 func TestAnyQuoted(t *testing.T) {
@@ -50,7 +49,6 @@ func TestAnyQuoted(t *testing.T) {
 	j := it.Data().labels[name].j[0]
 	assert(t, i == 0, i)
 	assert(t, j == 10, j)
-	assert(t, !it.HasError())
 }
 
 func TestID(t *testing.T) {
@@ -74,7 +72,6 @@ func TestID(t *testing.T) {
 	j := it.Data().labels[name].j[0]
 	assert(t, i == 0, i)
 	assert(t, j == 4, j)
-	assert(t, !it.HasError())
 }
 
 func TestCombined1(t *testing.T) {
@@ -106,7 +103,6 @@ func TestCombined1(t *testing.T) {
 	assert(t, err == nil, err)
 	execute(f, it)
 	fmt.Println(it.Data().labels)
-	assert(t, !it.HasError())
 }
 
 func TestCombined2(t *testing.T) {
@@ -165,7 +161,6 @@ func TestCombined2(t *testing.T) {
 	assert(t, err == nil, err)
 	execute(f, it)
 	fmt.Println(it.Data().labels)
-	assert(t, !it.HasError())
 }
 
 func TestTermHex(t *testing.T) {
