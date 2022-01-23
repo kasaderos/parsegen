@@ -167,3 +167,45 @@ func TestCombined2(t *testing.T) {
 	fmt.Println(it.Data().labels)
 	assert(t, !it.HasError())
 }
+
+func TestTermHex(t *testing.T) {
+	// integer
+	parser, err := Generate([]byte(
+		"S = A ;" +
+			"A = 0x30-39 A1 ;" +
+			"A1 = { 0x30-39 } ;",
+	))
+	assert(t, err == nil, err)
+	pd, err := parser.Parse([]byte("121313"))
+	assert(t, err == nil, err)
+	fmt.Println(pd.labels)
+}
+
+func TestTermEmpty(t *testing.T) {
+	// ["+"] 7
+	parser, err := Generate([]byte(
+		"S = A 0x37 ;" +
+			"A = 0x2b | 0x2d | empty ;",
+	))
+	assert(t, err == nil, err)
+	pd, err := parser.Parse([]byte("+7"))
+	assert(t, err == nil, err)
+	fmt.Println(pd.labels)
+	pd, err = parser.Parse([]byte("-7"))
+	assert(t, err == nil, err)
+	fmt.Println(pd.labels)
+	pd, err = parser.Parse([]byte("7"))
+	assert(t, err == nil, err)
+	fmt.Println(pd.labels)
+}
+
+func TestCycleTermEmpty(t *testing.T) {
+	parser, err := Generate([]byte(
+		"S = \" \" A \" \" ;" +
+			"A = { empty } ;",
+	))
+	assert(t, err == nil, err)
+	pd, err := parser.Parse([]byte("  "))
+	assert(t, err == nil, err)
+	fmt.Println(pd.labels)
+}

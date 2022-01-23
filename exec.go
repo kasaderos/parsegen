@@ -2,6 +2,8 @@ package main
 
 import "fmt"
 
+var Debug = false
+
 func back(stack *Stack, it Iterator, ret *code) {
 	for !stack.Empty() {
 		f := stack.Top().f
@@ -9,7 +11,10 @@ func back(stack *Stack, it Iterator, ret *code) {
 		start := stack.Top().start
 		buf := stack.Top().buf
 		stack.Pop()
-		fmt.Println("back: top", f.name)
+
+		if Debug {
+			fmt.Printf("back: top %s '%c'\n", f.name, it.CC())
+		}
 
 		switch f.typ {
 		case 'L':
@@ -29,7 +34,7 @@ func back(stack *Stack, it Iterator, ret *code) {
 			}
 			*ret = zero
 		case 'N':
-			if *ret == zero && f.hasNext(i) {
+			if (*ret == empty || *ret == zero) && f.hasNext(i) {
 				stack.Push(Frame{f, i + 1, start, it.GP()})
 				return
 			}
@@ -51,7 +56,10 @@ func execute(f *function, it Iterator) code {
 	for !stack.Empty() {
 		f := stack.Top().f
 		i := stack.Top().i
-		fmt.Println("front: top", f.name)
+
+		if Debug {
+			fmt.Printf("front: top, %s '%c'\n", f.name, it.CC())
+		}
 		switch f.typ {
 		case 'N', 'L', 'C':
 			// if non terminal is not empty push
@@ -62,7 +70,10 @@ func execute(f *function, it Iterator) code {
 			}
 		case 'T':
 			ret = f.call(it)
-			fmt.Println("front: ret", ret.String())
+
+			if Debug {
+				fmt.Printf("front: ret, %s '%c'\n", ret.String(), it.CC())
+			}
 			back(stack, it, &ret)
 		default:
 			back(stack, it, &ret)

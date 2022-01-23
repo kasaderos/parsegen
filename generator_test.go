@@ -236,100 +236,81 @@ func TestTwoRules(t *testing.T) {
 
 func TestHttpGetRequest(t *testing.T) {
 	parser, err := Generate([]byte(
-		"S = GetMethod SP Url SP StatusOk;" +
-			"GetMethod = any( );" +
-			"SP = \" \";" +
-			"Url = any( );" +
+		"S = Method SP Url SP StatusOk;" +
+			"Method = any(0x20);" +
+			"SP = 0x20 ;" +
+			"Url = any(0x20);" +
 			"StatusOk = integer;",
 	))
 	assert(t, err == nil, err)
-	pd, err := parser.Parse([]byte("GET / 200"))
+	pd, err := parser.Parse([]byte("GET https://google.com 200"))
 	assert(t, err == nil, err)
 	fmt.Println(pd.labels)
 }
 
-// 	parser, err := Generate([]byte(
-// 		"S = URI ;" +
-// 			"URI = scheme \":\" path ;" +
-// 			"scheme = Any(:) ;" +
-// 			"path = Any() ;",
-// 	))
-// 	assert(t, err == nil, err)
-// 	_ = parser
-// 	/*
-// 		[A] B [C]
-// 		V1 | V2 | V3
-// 		V1 = A B
-// 		V2 = B C
-// 		V3 = A B C
-// 	*/
-// }
+func TestBasicAny(t *testing.T) {
+	end := byte(0)
+	included := false
+	assert(t, isTermAny([]byte("any(0x0d)"), &end, &included))
+	assert(t, end == '\r' && !included)
 
-// func TestWithExec2(t *testing.T) {
-// 	n := 0
-// 	rules := []Rule{
-// 		{term{typ: 'N', name: "S"}, []term{
-// 			{typ: 'L', name: "A"},
-// 			{typ: 'N', name: "B"},
-// 		}},
-// 		{term{typ: 'L', name: "A"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { n++; fmt.Println("A"); return false }},
-// 			{typ: 'N', name: "C"},
-// 		}},
-// 		{term{typ: 'N', name: "C"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { fmt.Println("C"); return false }},
-// 		}},
-// 		{term{typ: 'N', name: "B"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { n++; fmt.Println("B"); return false }},
-// 		}},
-// 	}
-// 	f, err := generateFunction(rules)
-// 	assert(t, err == nil, err)
-// 	it, _ := NewIterator([]byte("Example"), true)
-// 	ret := execute(f, it)
-// 	assert(t, !ret, "ret true")
-// 	assert(t, n == 2, fmt.Sprintf("n != 2; n = %d", n))
-// }
+	assert(t, isTermAny([]byte("any[0x0d]"), &end, &included))
+	assert(t, end == '\r' && included)
+}
 
-// func TestWithExec3(t *testing.T) {
-// 	n := 0
-// 	rules := []Rule{
-// 		{term{typ: 'N', name: "S"}, []term{
-// 			{typ: 'L', name: "A"},
-// 			{typ: 'N', name: "B"},
-// 		}},
-// 		{term{typ: 'L', name: "A"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { n++; fmt.Println("A"); return true }},
-// 			{typ: 'N', name: "C"},
-// 		}},
-// 		{term{typ: 'N', name: "C"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { n++; fmt.Println("C"); return false }},
-// 		}},
-// 		{term{typ: 'N', name: "B"}, []term{
-// 			{typ: 'T', name: "Terminal", terminal: func(it Iterator) bool { n++; fmt.Println("B"); return false }},
-// 		}},
-// 	}
-// 	f, err := generateFunction(rules)
-// 	assert(t, err == nil, err)
-// 	it, _ := NewIterator([]byte("Example"), true)
-// 	ret := execute(f, it)
-// 	assert(t, !ret, "ret true")
-// 	assert(t, n == 3, fmt.Sprintf("n != 3; n = %d", n))
-// }
+/*
+	Parser generator based on short BNF rules (SBNF) - experimental tool to parsing data by BNF rules.
 
-// /*
-// // Generate([]byte(
-// 	// 	"S = URI" +
-// 	// 		"URI = scheme \":\" hierPart Query Fragment ;" +
-// 	// 		"hierPart = hierPart1 | pathAbsolute | pathRootLess | pathEmpty ;" +
-// 	// 		"hierPart1 = \"//\" authority path-abempty ;" +
-// 	// 		"scheme = ALPHA scheme1 ;" +
-// 	// 		"scheme1 = ALPHA | DIGIT | \"+\" | \"-\" | \".\" | empty | scheme1 ;" +
-// 	// 		"authority = UserInfoHostPort | UserInfoHost | HostPort  ;" +
-// 	// 		"UserInfoHostPort = userinfo \"@\" host \":\" port ;"+
-// 	// 		"UserInfoHost = userinfo \"@\" host ;" +
-// 	// 		"HostPort = host \":\" port ;" +
-// 	// ))
+	Example:
+	....
+
+	Guide:
+
+	1. Rule types:
+		rule1 = A1 A2 A3 ... An ;         - A1 than A2 than A3 .. than An, rule1 in [N], Ai in ([N], [T])
+		rule2 = A1 | A2 | A3 ... | An ;   - A1 or A2 .. or An,             rule2 in [L], Ai in ([N], [T], [C])
+		rule3 = { A } ;                   - zero or more times A,          rule3 in [C], A in ([N], [T], [C])
+
+	2. Entities on the right side can be:
+		A = "This is a string" ;     - string
+		A = any(0x3b) ;                 - any character ended with ';'(0x3b) not including ';' (this character can be any '/', '@', ..)
+		A = any[0x3b] ;                 - also like any(;) BUT ';' is included to A
+		A = integer ;                - integer, 100500
+		A = B ;                      - another entity, more about see p.5
+
+	3. Parsing starts from the initial 'S' (start rule)
+	    S = A B;
+		A = "A";
+		B = "B";
+
+	4. Each rule MUST end with ';' symbol
+
+	5. Each entity[N] MUST defined finally with terminals[T]
+		[T]: string, any(c), any[c], integer.
+		[N]: identifier like C variables, first character is letter, than digits or letters
+
+	6. Exported entities must start with capital letters:
+		S = prefix Passwd ;
+		prefix = "password: " ; // not exported
+		Passwd = "defcon99"   ; // exported
+
+	7. If entity is cycled like A = { B } you can get exported data with: GetMany(key) [][]byte
+	   If entity has only one instance you can use: Get(key) []byte
+
+	Remarks 1.
+	Exprimental utility, depending on the rules, can generate a "bad" parser that parses ambiguously or
+	goes into an infinite loop. As rules for determining the stopping or uniqueness of given rules,
+	this is an algorithmically unsolvable problem. Therefore, the user checks the rules himself.
+
+	Remarks 2.
+	Checks have been added to avoid common mistakes like recursion (A = B; B = A;)
+
+	More complex examples ...
+	reference bnf of 1-5: ...
+
+	TODO
+
+*/
 // URI           = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
 
 //    hier-part     = "//" authority path-abempty
@@ -416,13 +397,3 @@ func TestHttpGetRequest(t *testing.T) {
 //    sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
 //                  / "*" / "+" / "," / ";" / "="
 // */
-
-// // "S = SIPRequestLine ;" +
-// // 	"SIPRequestLine = Method SP RequestUri SP SIPVersion CRLF ;" +
-// // 	"RequestUri = SIPUri | SIPSUri | absoluteUri ;" +
-// // 	"absoluteURI = absoluteURIHierPart | opaquePart ;" +
-// // 	"absoluteURIHierPart = scheme \":\" hierPart ;" +
-// // 	"absoluteURIOpaquePart = scheme \":\" opaquePart ;" +
-// // 	"hierPart = hierPart1  ;" +
-// // 	"hierPart1 = NetPath | AbsPath ;" +
-// // 	"NetPath = "

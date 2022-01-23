@@ -55,7 +55,7 @@ func NewIterator(data []byte) (Iterator, error) {
 }
 
 func IsSpace(b byte) bool {
-	return b == ' ' || b == '\n' || b == '\t'
+	return b == ' ' || b == '\n' || b == '\t' || b == '\r'
 }
 
 func (it *CommonIterator) GC() {

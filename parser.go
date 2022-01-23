@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 )
 
 type Parser struct {
@@ -41,12 +42,13 @@ func Generate(bnf []byte) (*Parser, error) {
 			return nil, errors.New("not bnf rule")
 		}
 
-		rule, err := generateRules(it)
+		rule, err := generateRule(it)
 		if err != nil {
 			return nil, err
 		}
 		it.Data().Reset()
 		rules = append(rules, rule)
+		log.Println("appended rule", rule.lvalue.name)
 	}
 	f, err = generateFunction(rules)
 	if err != nil {

@@ -110,10 +110,11 @@ package main
 	) map[entity][]lex
 */
 
-const lid = "lid"
-const rid = "rid"
-const rstring = "string"
-const basicTerm = "basicTerm"
+const lidTerm = "lid"
+const ridTerm = "rid"
+const stringTerm = "string"
+const basicAnyTerm = "basicTerm"
+const hexTerm = "hexTerm"
 
 func bnfFunction(it Iterator) (*function, error) {
 	rules := []*Rule{
@@ -192,9 +193,10 @@ func bnfFunction(it Iterator) (*function, error) {
 		// rvalue = rid | string
 		// rid can be basic terminal: any(c), any[c], todo: integer, alpha, digit
 		{term{typ: 'L', name: "rvalue", marked: true}, []term{
-			{typ: 'T', name: basicTerm, marked: true, terminal: termBasicAny()},
-			{typ: 'T', name: rid, marked: true, terminal: termID()},
-			{typ: 'T', name: rstring, marked: true, terminal: termAnyQuoted()},
+			{typ: 'T', name: basicAnyTerm, marked: true, terminal: termBasicAny()},
+			{typ: 'T', name: hexTerm, marked: true, terminal: basicHex()}, // 0xff or 0x00-0xff
+			{typ: 'T', name: ridTerm, marked: true, terminal: termID()},
+			{typ: 'T', name: stringTerm, marked: true, terminal: termAnyQuoted()},
 		}},
 		// SP = {sp}
 		{term{typ: 'C', name: "SP"}, []term{
@@ -209,10 +211,11 @@ func bnfFunction(it Iterator) (*function, error) {
 		{term{typ: 'N', name: "endPart"}, []term{
 			{typ: 'C', name: "SP"},
 			{typ: 'T', name: "end", marked: true, terminal: termStr(";")},
+			{typ: 'C', name: "SP"},
 		}},
 		{term{typ: 'N', name: "lvalue"}, []term{
 			{typ: 'C', name: "SP"},
-			{typ: 'T', name: lid, marked: true, terminal: termID()},
+			{typ: 'T', name: lidTerm, marked: true, terminal: termID()},
 		}},
 		{term{typ: 'N', name: "assign"}, []term{
 			{typ: 'C', name: "SP"},

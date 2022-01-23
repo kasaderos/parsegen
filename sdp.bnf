@@ -1,0 +1,262 @@
+S = session-description ;
+session-description = proto-version
+					origin-field
+					session-name-field
+					information-field-L1
+					uri-field-L1
+					email-fields-C0
+					phone-fields-C0
+					connection-field-L1
+					bandwidth-fields-C0
+					time-fields
+					key-field-L1
+					attribute-fields-C0
+					media-descriptions-C0 ;
+
+proto-version = "v=" digit-C1 CRLF ; 
+origin-field = "o=" username SP sess-id SP sess-version SP
+					nettype SP addrtype SP unicast-address CRLF ;
+
+digit-C1 = digit digits ;
+digit = 0x30-39 ;
+
+session-name-field =  "c=" text CRLF ;
+
+information-field-L1 = information-field | empty ;
+information-field = "i=" text CRLF ;	
+
+uri-field-L1 = uri-field | empty ; 
+uri-field = "u=" uri CRLF ;
+
+email-fields-C0 = { email-fields } ;	
+email-fields = "e=" email-address CRLF ;
+
+phone-fields-C0 = { phone-fields } ;
+phone-fields = "p=" phone-number CRLF ;
+
+connection-field-L1 = connection-field | empty ; 
+connection-field = "c=" nettype SP addrtype SP
+					connection-address CRLF ; 
+
+bandwidth-fields-C0 = { bandwidth-fields } ; 
+bandwidth-fields = "b=" bwtype ":" bandwidth CRLF ; 
+
+time-fields =  time-fields-C1 zone-adjustments-L1; 
+time-fields-C1 = time-fields1 time-fields1-C0 ; 
+time-fields1-C0 = { time-fields1 } ;
+time-fields1 = "t=" start-time SP stop-time repeat-fields-C0
+					CRLF;
+
+
+repeat-fields-C0 = { repeat-fields1 } ;
+repeat-fields1 = CRLF repeat-fields ;
+repeat-fields =  "r=" repeat-interval SP typed-time typed-time-C1 ;
+
+typed-time-C1 = typed-time1 typed-time-C0 ;
+typed-time-C0 = { typed-time1 } ;
+typed-time1 = SP typed-time ;
+				
+zone-adjustments-L1 = zone-adjustments1 | empty ; 
+zone-adjustments1 = zone-adjustments CRLF ;
+zone-adjustments = "z=" time SP trait typed-time typed-time100 ;
+
+trait = "-" | empty ;
+typed-time100-C0 = { typed-time100 } ;
+typed-time100 = SP time SP trait typed-time ;
+
+key-field-L1 = key-field | empty ;
+key-field = "k=" key-type CRLF ; 
+				
+attribute-fields-C0 = { attribute-fields } ;
+attribute-fields = "a=" attribute CRLF ;
+				
+media-descriptions-C0 = { media-descriptions } ;
+media-descriptions = media-field 
+							information-field
+							connection-field-C0
+							bandwidth-fields
+							key-field-L1
+							attribute-fields-C0 ;
+
+connection-field-C0 = { connection-field } ;
+				
+media-field = "m=" media SP port backslash-integer-L1 
+										SP proto space-fmt CRLF ;
+backslash-integer-L1 = backslash-integer | empty ;
+backslash-integer = "/" integer ;
+space-fmt = spfmt spfmt-C0 ;
+spfmt = SP fmt ;
+spfmt-C0 = { spfmt } ;
+
+username = non-ws-string ;
+sess-id = integer1 ; 
+sess-version = integer1 ;
+nettype = token ;
+addrtype = token ; 
+uri = any(0x0d) ;
+email-address = any(0x0d) ; 
+
+phone-number = phone-number1 | phone-number2 | phone ;
+phone-number1 = phone SP-C0 "(" email-safe-C1 ")" ;
+phone-number2 = email-safe-C1 "<" phone ">" ;
+
+email-safe-C1 = email-safe email-safe-C0 ;
+email-safe-C0 = { email-safe };
+
+SP-C0 = { SP } ;
+
+phone = plus digit sp-trait-digit-C1 ; 
+plus = "+" | empty ;
+
+sp-trait-digit-C1 = sp-trait-digit sp-trait-digit-C0 ; 
+sp-trait-digit-C0 = { sp-trait-digit } ;
+sp-trait-digit = SP | "-" | digit ;
+
+connection-address =  multicast-address | unicast-address ;
+
+bwtype = token ;
+bandwidth = integer ;
+start-time = time | "0" ;
+stop-time = time | "0" ;
+time = pos-digit digit9 ;
+pos-digit = 0x31-39 ;
+digit9 = digit4 digit4 digit digitC1 ;
+digit4 = digit digit digit digit ;
+digitC1 = { digit } ;
+repeat-interval =     pos-digit digits fixed-len-time-unit1 ;
+fixed-len-time-unit1 = fixed-len-time-unit | empty ;
+
+typed-time = digit-C1 fixed-len-time-unit1 ;
+
+fixed-len-time-unit = "d" | "h" | "m" | "s" ;
+
+key-type =      "prompt" | clear1 | base64A | uri1 ;
+
+clear1 = "clear:" text ;
+base64A = "base64:" base64 ;
+uri1 = "uri:" uri ;
+base64 = base64-unit1 base64-pad1 ;
+base64-unit1 = { base64-unit } ;
+base64-pad1 = base64-pad | empty ;
+
+base64-unit = 4base64-char ; 
+base64-pad  = 2base64-char1 | 3base64-char1 ;
+2base64-char1 = 2base64-char "==" ;
+3base64-char1 = 3base64-char "=" ;
+base64-char = alpha | digit | "+" | "/" ;
+4base64-char = 2base64-char 2base64-char ;
+2base64-char = base64-char base64-char ;
+3base64-char = base64-char 2base64-char;
+
+attribute = att-field-value | att-field ;
+
+att-field-value = att-field ":" att-value ;
+att-field = token ;
+att-value = byte-string ;
+media = token ; 
+fmt = token ;
+proto = token backslash-tokens1 ;
+backslash-tokens1 = { backslash-tokens } ;
+backslash-tokens = "/" token ;
+port = integer ;
+unicast-address = iP4-address | iP6-address | fQDN | extn-addr ;
+
+multicast-address = iP4-multicast | iP6-multicast | fQDN
+					| extn-addr ;
+
+iP4-multicast =  m1-L1 3decimal-uchar "/" ttl backslash-integer-L1 ;
+3decimal-uchar = decimal-uchar1 decimal-uchar1 decimal-uchar1 ;
+decimal-uchar1 = "." decimal-uchar ;
+backslash-integer-L1 = backslash-integer | empty ;
+backslash-integer = "/" integer1 ;
+
+m1-L1 = m2 | m3  ;
+m2 = "22" m21  ; 
+m3 = "23" digit ; 
+m21 = 0x34-39 ; 
+
+iP6-multicast = hexpart backslash-integer-L1 ; 
+
+ttl = pos-digit-2digit | "0" ;
+pos-digit-2digit = pos-digit 2digit-C0 ;
+2digit-C0 = { 2digit } ;
+2digit = digit digit;
+
+fQDN = fqdn2 fqdn2 fqdn-C0 ; 
+fqdn2 = fqdn fqdn ;
+fqdn-C0 = { fqdn } ;
+fqdn = alpha-numeric | "-" | "." ;
+
+iP4-address = b1 ip4-address-bytes3 ;
+
+ip4-address-bytes3 = ip4-bytes ip4-bytes ip4-bytes ;
+ip4-bytes = "." decimal-uchar ;
+
+b1 = decimal-uchar ;
+
+iP6-address = hexpart colon-ip4-address1 ;
+
+colon-ip4-address1 = colon-ip4-address | empty ;
+colon-ip4-address = ":" iP4-address ;
+
+hexpart = hexseq | hexseq-colon2  | hexseq-colon3 ; 
+hexseq-colon2 = hexseq "::" hexseq1 ;
+hexseq-colon3 = "::" hexseq1 ;
+hexseq1 = hexseq | empty ;
+
+hexseq  = hex4 hex4A ; 
+hex4A = { hex4A1 } ;
+hex4A1 = ":" hex4 ;
+
+hex4 = hexdig hexdig-L1 hexdig-L1 hexdig-L1 ; 
+hexdig-L1 = hexdig | empty  ;
+
+hexdig = digit | 0x41-0x46 ;
+
+extn-addr = non-ws-string ;
+
+text = byte-string ;
+
+byte-string = byte-string1 byte-string2 ; 
+byte-string1 = 0x01-09 | 0x0B-0C | 0x0E-FF ; 
+byte-string2 = { byte-string1 } ;
+
+non-ws-string = non-ws-string1 non-ws-string2 ;
+
+non-ws-string1 = vchar | 0x80-FF ;
+non-ws-string2 = { non-ws-string1 } ;
+
+token-char = 0x21 | 0x23-27 | 0x2A-2B | 0x2D-2E | 0x30-39
+                         | 0x41-5A | 0x5E-7E ;
+
+token = token-char token-char1  ; 
+token-char1 = { token-char } ;
+
+email-safe = 0x01-09 | 0x0B-0C | 0x0E-27 | 0x2A-3B | 0x3D | 0x3F-FF ;
+
+integer1 = pos-digit digits ;
+digits = { digit } ;
+
+alpha-numeric = alpha | digit  ;
+
+pos-digit = 0x31-39 ; 
+
+decimal-uchar = digit | decimal-uchar1 | decimal-uchar2 
+                         | digit100  
+                         | digit102 ; 
+
+decimal-uchar1 = pos-digit digit ;
+decimal-uchar2 = "1" 2digit digits ;
+decimal-uchar3 = "2" digit100 ;
+digit100 = 0x30-34 digit ;
+digit101 = "2" "5" digit102 ;
+digit102 = 0x30-35 ; 
+2digit = digit digit ;
+
+digit-C1 = digit digits ;
+
+CRLF = "\r\n" ;
+SP = " " ;
+alpha = 0x61-7a | 0x41-5a ;
+
+vchar = 0x21-7e;

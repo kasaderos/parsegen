@@ -13,11 +13,12 @@ const (
 	missed code = iota
 	eof
 	zero
+	empty
 )
 
 type tFunc func(Iterator) code
 
-var codes = []string{"missed", "eof", "zero"}
+var codes = []string{"missed", "eof", "zero", "empty"}
 
 func (c code) String() string {
 	return codes[c]
@@ -40,7 +41,7 @@ func (f *function) call(it Iterator) code {
 	if it.EOF() {
 		return eof
 	}
-	if i == it.GP() {
+	if !f.isEmpty() && i == it.GP() {
 		return missed
 	}
 	return ret
@@ -48,6 +49,10 @@ func (f *function) call(it Iterator) code {
 
 func (f *function) isTerminal() bool {
 	return f.typ == 'T' //&& f.terminal != nil
+}
+
+func (f *function) isEmpty() bool {
+	return f.name == "empty" //&& f.terminal != nil
 }
 
 func (f *function) hasNext(current int) bool {
@@ -99,7 +104,7 @@ func checkBNF(f *function) error {
 
 	for _, fn := range f.funcs {
 		if fn == f || fn.name == f.name {
-			return errors.New("found recursion")
+			return errors.New("found recursion " + f.name)
 		}
 		if err := checkBNF(fn); err != nil {
 			return err

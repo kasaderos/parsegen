@@ -18,7 +18,7 @@ type Rule struct {
 	rvalue []term
 }
 
-func generateRules(it Iterator) (*Rule, error) {
+func generateRule(it Iterator) (*Rule, error) {
 	pd := it.Data()
 
 	// TODO do const names
@@ -39,7 +39,7 @@ func generateRules(it Iterator) (*Rule, error) {
 	if typ == 'Z' {
 		return nil, errors.New("invalid expr")
 	}
-	lid := string(pd.Get(lid))
+	lid := string(pd.Get(lidTerm))
 	if len(lid) < 1 {
 		return nil, errors.New("lvalue empty")
 	}
@@ -55,6 +55,9 @@ func generateRules(it Iterator) (*Rule, error) {
 	rvalue := make([]term, 0)
 LP:
 	for _, item := range pd.GetAll("rvalue") {
+		if Debug {
+			fmt.Println("rvalue", string(item))
+		}
 		if len(item) < 1 {
 			return nil, errors.New("rvalue empty")
 		}
@@ -68,6 +71,21 @@ LP:
 
 		if isTermInteger(item) {
 			rvalue = append(rvalue, term{typ: 'T', name: string(item), terminal: termInteger()})
+			continue LP
+		}
+
+		if isTermEmpty(item) {
+			rvalue = append(rvalue, term{typ: 'T', name: string(item), terminal: termEmpty()})
+			continue LP
+		}
+
+		start, end := byte(0), byte(0)
+		if isHex(item, &start, &end) {
+			if start == end {
+				rvalue = append(rvalue, term{typ: 'T', name: string(item), terminal: termHex(start)})
+			} else {
+				rvalue = append(rvalue, term{typ: 'T', name: string(item), terminal: termHexes(start, end)})
+			}
 			continue LP
 		}
 
@@ -168,16 +186,18 @@ func isCapital(b byte) bool {
 
 func isTermAny(rvalue []byte, end *byte, includeEnd *bool) bool {
 	// any(c)
-	if len(rvalue) == 6 && bytes.HasPrefix(rvalue, anyPrefix) {
-		if rvalue[3] == '(' && rvalue[5] == ')' {
-			*end = rvalue[4]
+	if len(rvalue) == 9 && bytes.HasPrefix(rvalue, anyPrefix) {
+		if rvalue[3] == '(' && rvalue[8] == ')' {
 			*includeEnd = false
-			return true
-		}
-		if rvalue[3] == '[' && rvalue[5] == ']' {
-			*end = rvalue[4]
+		} else if rvalue[3] == '[' && rvalue[8] == ']' {
 			*includeEnd = true
-			return true
+		} else {
+			return false
+		}
+		b1, b2 := byte(0), byte(0)
+		if isHex(rvalue[4:8], &b1, &b2) {
+			*end = b1
+			return b1 == b2
 		}
 	}
 	return false
@@ -185,4 +205,8 @@ func isTermAny(rvalue []byte, end *byte, includeEnd *bool) bool {
 
 func isTermInteger(rvalue []byte) bool {
 	return bytes.Equal(rvalue, integerTerm)
+}
+
+func isTermEmpty(rvalue []byte) bool {
+	return bytes.Equal(rvalue, emptyTerm)
 }
