@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type label struct {
 	i, j []int // i included, j not
 }
@@ -74,6 +76,18 @@ func (pd *ParsedData) SetEnd(name string, ind int) {
 
 func (pd *ParsedData) Data() *ParsedData {
 	return pd
+}
+
+func (pd *ParsedData) Print() {
+	for key, value := range pd.labels {
+		if value.isEmpty() {
+			continue
+		}
+		fmt.Printf("%s : \n", key)
+		for i := 0; i < len(value.i); i++ {
+			fmt.Printf("\t\t%s\n", pd.data[value.i[0]:value.j[0]])
+		}
+	}
 }
 
 func (pd *ParsedData) Reset() {

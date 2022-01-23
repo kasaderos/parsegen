@@ -1,7 +1,7 @@
 S = session-description ;
-session-description = Proto-version
-					Origin-field
-					Session-name-field
+session-description = proto-version
+					origin-field
+					session-name-field
 					information-field-L1
 					uri-field-L1
 					email-fields-C0
@@ -13,62 +13,66 @@ session-description = Proto-version
 					attribute-fields-C0
 					media-descriptions-C0 ;
 
-Proto-version = "v=" digit-C1 CRLF ; 
-Origin-field = "o=" username SP sess-id SP sess-version SP
-					nettype SP addrtype SP unicast-address CRLF ;
+proto-version = "v=" digit-C1 crlf ; 
+origin-field = "o=" username space sess-id space sess-version space
+					nettype space addrtype space unicast-address crlf ;
 
 digit-C1 = digit digits ;
 digit = 0x30-39 ;
 
-Session-name-field =  "c=" text CRLF ;
+session-name-field =  "s=" Session-name crlf ;
+Session-name = text ;
 
 information-field-L1 = information-field | empty ;
-information-field = "i=" text CRLF ;	
+information-field = "i=" text crlf ;	
 
-uri-field-L1 = Uri-field | empty ; 
-Uri-field = "u=" uri CRLF ;
+uri-field-L1 = uri-field | empty ; 
+uri-field = "u=" uri crlf ;
 
 email-fields-C0 = { email-fields } ;	
-email-fields = "e=" email-address CRLF ;
+email-fields = "e=" email-address crlf ;
 
 phone-fields-C0 = { phone-fields } ;
-phone-fields = "p=" phone-number CRLF ;
+phone-fields = "p=" phone-number crlf ;
 
-connection-field-L1 = Connection-field | empty ; 
-Connection-field = "c=" nettype SP addrtype SP
-					Connection-address CRLF ; 
+connection-field-L1 = connection-field | empty ; 
+connection-field = "c=" Nettype space addrtype space
+					Connection-address crlf ; 
+  
+Nettype = nettype ;
+Addrtype = addrtype ; 
 
 bandwidth-fields-C0 = { bandwidth-fields } ; 
-bandwidth-fields = "b=" bwtype ":" bandwidth CRLF ; 
+bandwidth-fields = "b=" bwtype ":" bandwidth crlf ; 
 
 time-fields =  time-fields-C1 zone-adjustments-L1; 
 time-fields-C1 = time-fields1 time-fields1-C0 ; 
 time-fields1-C0 = { time-fields1 } ;
-time-fields1 = "t=" start-time SP stop-time repeat-fields-C0
-					CRLF;
+time-fields1 = "t=" start-time space stop-time repeat-fields-C0
+					crlf;
 
 
 repeat-fields-C0 = { repeat-fields1 } ;
-repeat-fields1 = CRLF repeat-fields ;
-repeat-fields =  "r=" repeat-interval SP typed-time typed-time-C1 ;
+repeat-fields1 = crlf repeat-fields ;
+repeat-fields =  "r=" repeat-interval space typed-time typed-time-C1 ;
 
 typed-time-C1 = typed-time1 typed-time-C0 ;
 typed-time-C0 = { typed-time1 } ;
-typed-time1 = SP typed-time ;
+typed-time1 = space typed-time ;
 				
 zone-adjustments-L1 = zone-adjustments1 | empty ; 
-zone-adjustments1 = zone-adjustments CRLF ;
-zone-adjustments = "z=" time SP trait typed-time typed-time100 ;
+zone-adjustments1 = zone-adjustments crlf ;
+zone-adjustments = "z=" time space trait typed-time typed-time100 ;
 
 trait = "-" | empty ;
 typed-time100-C0 = { typed-time100 } ;
-typed-time100 = SP time SP trait typed-time ;
+typed-time100 = space time space trait typed-time ;
 
 key-field-L1 = key-field | empty ;
-key-field = "k=" key-type CRLF ; 
+key-field = "k=" key-type crlf ; 
 				
 attribute-fields-C0 = { attribute-fields } ;
-attribute-fields = "a=" Attribute CRLF ;
+attribute-fields = "a=" Attribute crlf ;
 				
 media-descriptions-C0 = { Media-descriptions } ;
 Media-descriptions = media-field 
@@ -78,14 +82,14 @@ Media-descriptions = media-field
 							key-field-L1
 							attribute-fields-C0 ;
 
-connection-field-C0 = { Connection-field } ;
+connection-field-C0 = { connection-field } ;
 				
-media-field = "m=" Media SP Port backslash-integer-L1 
-										SP proto space-fmt CRLF ;
+media-field = "m=" Media space Port backslash-integer-L1 
+										space proto space-fmt crlf ;
 backslash-integer-L1 = backslash-integer | empty ;
 backslash-integer = "/" integer ;
 space-fmt = spfmt spfmt-C0 ;
-spfmt = SP fmt ;
+spfmt = space fmt ;
 spfmt-C0 = { spfmt } ;
 
 username = non-ws-string ;
@@ -97,20 +101,20 @@ uri = any(0x0d) ;
 email-address = any(0x0d) ; 
 
 phone-number = phone-number1 | phone-number2 | phone ;
-phone-number1 = phone SP-C0 "(" email-safe-C1 ")" ;
+phone-number1 = phone space-C0 "(" email-safe-C1 ")" ;
 phone-number2 = email-safe-C1 "<" phone ">" ;
 
 email-safe-C1 = email-safe email-safe-C0 ;
 email-safe-C0 = { email-safe };
 
-SP-C0 = { SP } ;
+space-C0 = { space } ;
 
 phone = plus digit sp-trait-digit-C1 ; 
 plus = "+" | empty ;
 
 sp-trait-digit-C1 = sp-trait-digit sp-trait-digit-C0 ; 
 sp-trait-digit-C0 = { sp-trait-digit } ;
-sp-trait-digit = SP | "-" | digit ;
+sp-trait-digit = space | "-" | digit ;
 
 Connection-address =  multicast-address | unicast-address ;
 
@@ -241,9 +245,9 @@ alpha-numeric = alpha | digit  ;
 
 pos-digit = 0x31-39 ; 
 
-decimal-uchar = digit | decimal-uchar1 | decimal-uchar2 
+decimal-uchar = decimal-uchar1 | decimal-uchar2 
                          | digit100  
-                         | digit102 ; 
+                         | digit102 | digit ; 
 
 decimal-uchar1 = pos-digit digit ;
 decimal-uchar2 = "1" 2digit digits ;
@@ -255,8 +259,8 @@ digit102 = 0x30-35 ;
 
 digit-C1 = digit digits ;
 
-CRLF = "\r\n" ;
-SP = " " ;
+crlf = 0x0d 0x0a ;
+space = " " ;
 alpha = 0x61-7a | 0x41-5a ;
 
 vchar = 0x21-7e;
