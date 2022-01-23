@@ -91,13 +91,13 @@ func TestCombined1(t *testing.T) {
 			{typ: 'N', name: quoted, marked: true},
 		}},
 		{term{typ: 'N', name: id, marked: true}, []term{
-			{typ: 'T', name: id, terminal: termID()},
+			{typ: 'T', terminal: termID()},
 		}},
 		{term{typ: 'N', name: str, marked: true}, []term{
-			{typ: 'T', name: str, terminal: termStr(" ")},
+			{typ: 'T', terminal: termStr(" ")},
 		}},
 		{term{typ: 'N', name: quoted, marked: true}, []term{
-			{typ: 'T', name: quoted, terminal: termAnyQuoted()},
+			{typ: 'T', terminal: termAnyQuoted()},
 		}},
 	}
 	f, err := generateFunction(rules)

@@ -20,7 +20,6 @@ func TestSDPParser(t *testing.T) {
 
 	parser, err := Generate(bnf)
 	assert(t, err == nil, err)
-	_ = parser
 
 	input := "v=0\r\n" +
 		"o=- 345678 345979 IN IP4 10.0.1.2\r\n" +

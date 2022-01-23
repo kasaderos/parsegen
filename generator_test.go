@@ -58,67 +58,6 @@ func TestGenerateFunction2(t *testing.T) {
 	printTree(f)
 }
 
-func TestWithExec1(t *testing.T) {
-	n := 0
-	rules := []*Rule{
-		{term{typ: 'N', name: "S"}, []term{
-			{typ: 'N', name: "A"},
-			{typ: 'N', name: "B"},
-			{typ: 'N', name: "C"},
-		}},
-		{term{typ: 'N', name: "A"}, []term{
-			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { n++; return zero }},
-		}},
-		{term{typ: 'N', name: "B"}, []term{
-			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { n++; return zero }},
-		}},
-		{term{typ: 'N', name: "C"}, []term{
-			{typ: 'N', name: "D"},
-			{typ: 'N', name: "E"},
-		}},
-		{term{typ: 'N', name: "D"}, []term{
-			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { n++; return zero }},
-		}},
-		{term{typ: 'N', name: "E"}, []term{
-			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code { n++; return zero }},
-		}},
-	}
-	f, err := generateFunction(rules)
-	assert(t, err == nil, err)
-	assert(t, n != 4, fmt.Sprintf("n != 4; n = %d", n))
-	it, _ := NewIterator([]byte("Example"))
-	ret := execute(f, it)
-	assert(t, ret == zero, "ret == err or oef")
-}
-
-func TestExecuteCycle1(t *testing.T) {
-	n := 0
-	// S = A
-	// A = {Terminal}, A - cycle
-	rules := []*Rule{
-		{term{typ: 'N', name: "S"}, []term{
-			{typ: 'C', name: "A"},
-		}},
-		{term{typ: 'C', name: "A"}, []term{
-			{typ: 'T', name: "Terminal", terminal: func(it Iterator) code {
-				if n >= 3 {
-					return missed
-				}
-				n++
-				fmt.Println("A")
-				return zero
-			}},
-		}},
-	}
-	f, err := generateFunction(rules)
-	assert(t, err == nil, err)
-	it, _ := NewIterator([]byte("Example"))
-	ret := execute(f, it)
-	assert(t, ret == zero, "ret true")
-	assert(t, n == 3, fmt.Sprintf("n != 3; n = %d", n))
-	printTree(f)
-}
-
 func TestBacktrackLogic(t *testing.T) {
 	rules := []*Rule{
 		{term{typ: 'N', name: "S"}, []term{

@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 )
 
@@ -52,7 +51,6 @@ func Generate(bnf []byte) (*Parser, error) {
 
 	for !it.EOF() {
 		ret := execute(f, it)
-		fmt.Println(it.Data().labels)
 		if ret == missed {
 			return nil, errors.New("not bnf rule")
 		}
@@ -69,7 +67,6 @@ func Generate(bnf []byte) (*Parser, error) {
 	if err != nil {
 		return nil, err
 	}
-	printTree(f)
 
 	return &Parser{f}, nil
 }
