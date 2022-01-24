@@ -68,8 +68,11 @@ type Data interface {
 	GetLabel(string) Label
 }
 
+// Labeler allows add bounds of entities.
 type Labeler interface {
+	// AppendStart appends a start index
 	AppendStart(string, int)
+	// AppendEnd appends an end index
 	AppendEnd(string, int)
 }
 

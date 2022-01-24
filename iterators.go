@@ -2,9 +2,9 @@ package parsegen
 
 import (
 	"errors"
-	"log"
 )
 
+// IteratorStruct contains common fields to iterate by bytes slice
 type IteratorStruct struct {
 	curr byte
 	ind  int
@@ -12,27 +12,33 @@ type IteratorStruct struct {
 	err  error
 }
 
-func (it *IteratorStruct) SetError(s string) {
-	it.err = errors.New(s)
-	log.Println(it.err)
-}
-
+// CommonIterator implements Iterator interface
 type CommonIterator struct {
 	*ParsedData
 	IteratorStruct
 }
 
+// Iterator is intended to iterate by bytes slice
 type Iterator interface {
+	// GC moves the pointer(index) to the next character
+	// if current character is last it raises flag EOF.
+	// The current symbol remains unchanged.
 	GC()
+	// CC returns the current char
 	CC() byte
+	// GP returns the current pointer(index)
 	GP() int
+	// EOF returns true returns true
+	// if the slice of bytes is exhausted (GP() == lenght of data)
 	EOF() bool
+	// BT returns a pointer to the given position.
+	// This also changes the current character to the character under the pointer.
 	BT(int)
-	SetError(string)
 	Labeler
 	Data() Data
 }
 
+// NewIterator is a constructor of Iterator
 func NewIterator(data []byte) (Iterator, error) {
 	if len(data) == 0 {
 		return nil, errors.New("data is empty")
