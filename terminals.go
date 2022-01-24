@@ -1,7 +1,6 @@
 package parsegen
 
 var anyPrefix = []byte("any")
-var integerTerm = []byte("integer")
 var emptyTerm = []byte("empty")
 
 func termStr(s string) tFunc {
@@ -172,18 +171,6 @@ func termSpace() tFunc {
 	}
 }
 
-func termInteger() tFunc {
-	return func(it Iterator) code {
-		for !it.EOF() && isDigit(it.CC()) {
-			it.GC()
-		}
-		if it.EOF() {
-			return eof
-		}
-		return zero
-	}
-}
-
 // end symbol
 // Any(:)
 func termAny(end byte, includeEnd bool) tFunc {
@@ -202,7 +189,7 @@ func termAny(end byte, includeEnd bool) tFunc {
 
 func termEmpty() tFunc {
 	return func(it Iterator) code {
-		return empty
+		return exit
 	}
 }
 

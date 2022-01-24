@@ -4,6 +4,7 @@ import "fmt"
 
 var Debug = false
 
+// back roll back a stack with ret code that terminal returned
 func back(stack *Stack, it Iterator, ret *code) {
 	for !stack.Empty() {
 		f := stack.Top().f
@@ -18,6 +19,7 @@ func back(stack *Stack, it Iterator, ret *code) {
 
 		switch f.typ {
 		case 'L':
+			// if it missed call next function
 			if *ret == missed && f.hasNext(i) {
 				*ret = zero
 				stack.Push(Frame{f, i + 1, start, buf})
@@ -25,21 +27,26 @@ func back(stack *Stack, it Iterator, ret *code) {
 				return
 			}
 		case 'C':
+			// push while ret is zero (normal)
+			// store current index in the stack buf
 			if *ret == zero {
 				stack.Push(Frame{f, 0, start, it.GP()})
 				return
 			}
+			// backtrack to last zero ended entity
 			if *ret == missed {
 				it.BT(buf)
 			}
 			*ret = zero
 		case 'N':
-			if (*ret == empty || *ret == zero) && f.hasNext(i) {
+			// if it's ok,  push next function
+			if (*ret == exit || *ret == zero) && f.hasNext(i) {
 				stack.Push(Frame{f, i + 1, start, it.GP()})
 				return
 			}
 		}
 
+		// add bounds to label
 		if f.marked && *ret != missed {
 			it.AppendStart(f.name, start)
 			it.AppendEnd(f.name, it.GP())
@@ -47,6 +54,14 @@ func back(stack *Stack, it Iterator, ret *code) {
 	}
 }
 
+// execute executes function with "recursive descent method" on a stack
+// Example:
+//   foo = bar1 bar2 ;
+//   foo[N]:    // foo is a function with typ 'N'
+//      bar1[N]  // another function that foo contains
+//		bar2[N]
+//   executes bar1, then bar2.
+//   Logic of rollback implemented in back function (see back)
 func execute(f *function, it Iterator) code {
 	stack := &Stack{}
 	stack.Push(Frame{f, 0, it.GP(), 0})
@@ -69,6 +84,7 @@ func execute(f *function, it Iterator) code {
 				back(stack, it, &ret)
 			}
 		case 'T':
+			// call terminal function
 			ret = f.call(it)
 
 			if Debug {
@@ -76,34 +92,9 @@ func execute(f *function, it Iterator) code {
 			}
 			back(stack, it, &ret)
 		default:
+			// unknown type, just back
 			back(stack, it, &ret)
 		}
 	}
 	return ret
 }
-
-/*
-	S = A B
-	A = "T1"
-	B = "T2"
-
-	S = A | B
-	A = "AA"
-	B = "AB"
-*/
-/*
-	F()
-*/
-
-// LOGIC():
-//    G(A())
-//    G(B())
-
-// A():
-//   print('A')
-
-// B():
-//   print('B')
-
-// C():
-//   print('C')

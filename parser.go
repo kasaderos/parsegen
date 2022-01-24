@@ -54,7 +54,7 @@ func Generate(bnf []byte) (*Parser, error) {
 		return nil, err
 	}
 
-	rules := make([]*Rule, 0)
+	rules := make([]*rule, 0)
 
 	for !it.EOF() {
 		ret := execute(f, it)

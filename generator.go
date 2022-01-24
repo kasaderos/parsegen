@@ -13,12 +13,12 @@ type term struct {
 	terminal tFunc
 }
 
-type Rule struct {
+type rule struct {
 	lvalue term // non-terminal
 	rvalue []term
 }
 
-func generateRule(it Iterator) (*Rule, error) {
+func generateRule(it Iterator) (*rule, error) {
 	pd := it.Data()
 
 	// TODO do const names
@@ -44,7 +44,7 @@ func generateRule(it Iterator) (*Rule, error) {
 		return nil, errors.New("[gen] got empty lvalue")
 	}
 
-	rule := &Rule{
+	rule := &rule{
 		lvalue: term{typ: typ, name: lid},
 	}
 
@@ -114,7 +114,7 @@ func removeQuotes(s []byte) string {
 }
 
 // syntax analyzer
-func generateFunction(rules []*Rule) (*function, error) {
+func generateFunction(rules []*rule) (*function, error) {
 	lvalueFuncs := []*function{}
 	var initial *function
 	count := 0
@@ -196,10 +196,6 @@ func isTermAny(rvalue []byte, end *byte, includeEnd *bool) bool {
 		}
 	}
 	return false
-}
-
-func isTermInteger(rvalue []byte) bool {
-	return bytes.Equal(rvalue, integerTerm)
 }
 
 func isTermEmpty(rvalue []byte) bool {

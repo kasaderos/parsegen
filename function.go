@@ -13,7 +13,7 @@ const (
 	missed code = iota
 	eof
 	zero
-	empty
+	exit
 )
 
 type tFunc func(Iterator) code

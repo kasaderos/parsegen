@@ -5,7 +5,7 @@ import (
 )
 
 func TestGenerateFunction1(t *testing.T) {
-	rules := []*Rule{
+	rules := []*rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: "A"},
 			{typ: 'N', name: "B"},
@@ -36,7 +36,7 @@ func TestGenerateFunction1(t *testing.T) {
 }
 
 func TestGenerateFunction2(t *testing.T) {
-	rules := []*Rule{
+	rules := []*rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'L', name: "A"},
 			{typ: 'N', name: "B"},
@@ -58,7 +58,7 @@ func TestGenerateFunction2(t *testing.T) {
 }
 
 func TestBacktrackLogic(t *testing.T) {
-	rules := []*Rule{
+	rules := []*rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'L', name: "A", marked: true},
 		}},
@@ -77,7 +77,7 @@ func TestBacktrackLogic(t *testing.T) {
 }
 
 func TestBacktrackCycle(t *testing.T) {
-	rules := []*Rule{
+	rules := []*rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'C', name: "A", marked: true},
 		}},
@@ -94,7 +94,7 @@ func TestBacktrackCycle(t *testing.T) {
 }
 
 func TestExecuteCycleData(t *testing.T) {
-	rules := []*Rule{
+	rules := []*rule{
 		{term{typ: 'N', name: "S"}, []term{
 			term{typ: 'C', name: "SP", marked: true},
 			{typ: 'C', name: "A", marked: true},

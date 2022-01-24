@@ -7,7 +7,7 @@ import (
 func TestStr(t *testing.T) {
 	s := "abcd bcd"
 	name := "String"
-	rules := []*Rule{
+	rules := []*rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: name, marked: true},
 		}},
@@ -27,7 +27,7 @@ func TestAnyQuoted(t *testing.T) {
 	// TODO add bad tests and check error
 	s := "\"abcd bcd\""
 	name := "QuotedString"
-	rules := []*Rule{
+	rules := []*rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: name, marked: true},
 		}},
@@ -47,7 +47,7 @@ func TestID(t *testing.T) {
 	// TODO add bad tests and check error
 	s := "abcd"
 	name := "ID"
-	rules := []*Rule{
+	rules := []*rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: name, marked: true},
 		}},
@@ -70,7 +70,7 @@ func TestCombined1(t *testing.T) {
 	str := "String"
 	quoted := "Quoted"
 
-	rules := []*Rule{
+	rules := []*rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: id, marked: true},
 			{typ: 'N', name: str, marked: true},
@@ -96,10 +96,9 @@ func TestCombined1(t *testing.T) {
 
 func TestCombined2(t *testing.T) {
 	// TODO add bad tests and check error
-	s := "GET dafadf 200 OK"
+	s := "GET dafadf OK"
 	method := "Method"
 	url := "Url"
-	code := "Code"
 	space := "Space"
 	message := "Message"
 
@@ -109,25 +108,11 @@ func TestCombined2(t *testing.T) {
 	// Code = Number
 	// Message = AnySpace
 
-	// S:
-	//   Method()
-	//   CheckStr(" ")
-	//   Url()
-	//   CheckStr(" ")
-	//   Code()
-	//   CheckStr(" ")
-	//   Message()
-
-	// Method:
-	//    AnySpace()
-
-	rules := []*Rule{
+	rules := []*rule{
 		{term{typ: 'N', name: "S"}, []term{
 			{typ: 'N', name: method, marked: true},
 			{typ: 'T', name: space, terminal: termStr(" ")},
 			{typ: 'N', name: url, marked: true},
-			{typ: 'T', name: space, terminal: termStr(" ")},
-			{typ: 'N', name: code, marked: true},
 			{typ: 'T', name: space, terminal: termStr(" ")},
 			{typ: 'N', name: message, marked: true},
 		}},
@@ -136,9 +121,6 @@ func TestCombined2(t *testing.T) {
 		}},
 		{term{typ: 'N', name: url, marked: true}, []term{
 			{typ: 'T', name: "tUrl", terminal: termAny(' ', false)},
-		}},
-		{term{typ: 'N', name: code, marked: true}, []term{
-			{typ: 'T', name: "tCode", terminal: termInteger()},
 		}},
 		{term{typ: 'N', name: message, marked: true}, []term{
 			{typ: 'T', name: "tMessage", terminal: termAny(0, false)},

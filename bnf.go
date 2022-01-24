@@ -41,7 +41,7 @@ const hexTerm = "hexTerm"
 
 // bnfFunction returns a function that parses single BNF rule.
 func bnfFunction(it Iterator) (*function, error) {
-	rules := []*Rule{
+	rules := []*rule{
 		// S = rule ;
 		{term{typ: 'N', name: "S", marked: true}, []term{
 			{typ: 'N', name: "rule", marked: true},

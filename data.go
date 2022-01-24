@@ -2,10 +2,12 @@ package parsegen
 
 import "fmt"
 
+// Label contains entity bounds of parsing input
 type Label struct {
 	i, j []int // i included, j not
 }
 
+// IsOnly returns true if label has exactly one bound
 func (lbls *Label) IsOnly() bool {
 	return len(lbls.i) == 1 && len(lbls.j) == 1
 }
@@ -14,12 +16,27 @@ func (lbls *Label) IsEmpty() bool {
 	return len(lbls.i) < 1 && len(lbls.j) < 1
 }
 
+// GetBound returns the boundary of the i-th occurrence of the entity in the data array
+// If label don't have i-th occurrence it returns zeros.
+func (lbls *Label) GetBound(i int) (start int, end int) {
+	if i < len(lbls.i) && i < len(lbls.j) {
+		return lbls.i[i], lbls.j[i]
+	}
+	return 0, 0
+}
+
 type lex struct {
 	name  string
 	value []byte
 }
 
-// ParsedData is a structure that contains indices of exported entities.
+// ParsedData implements Data interface
+type ParsedData struct {
+	data   []byte
+	labels map[string]Label // lvalue : labels
+}
+
+// Data contains indices of exported entities.
 // For example:
 // S = Hello " " World;
 // Hello = "hello" ;
@@ -35,11 +52,6 @@ type lex struct {
 // AB = "AB" ;
 // input : "ABAB"
 // AB contains indices [0, 2], [2, 4]
-type ParsedData struct {
-	data   []byte
-	labels map[string]Label // lvalue : labels
-}
-
 type Data interface {
 	// Get returns the first parsed subbytes of exported entity.
 	// IMPORTANT: This function SLICES input slice bytes.
