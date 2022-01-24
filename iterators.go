@@ -40,7 +40,7 @@ func NewIterator(data []byte) (Iterator, error) {
 	it := IteratorStruct{
 		curr: data[0],
 	}
-	pd := &ParsedData{data, make(map[string]label)}
+	pd := &ParsedData{data, make(map[string]Label)}
 	return &CommonIterator{pd, it}, nil
 }
 

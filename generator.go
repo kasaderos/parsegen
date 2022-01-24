@@ -28,11 +28,11 @@ func generateRule(it Iterator) (*Rule, error) {
 	expr2 := pd.GetLabel("orRvalues")
 
 	typ := byte('Z')
-	if (!base.isEmpty() || expr1.isOnly()) && expr2.isEmpty() {
+	if (!base.IsEmpty() || expr1.IsOnly()) && expr2.IsEmpty() {
 		typ = 'N'
-	} else if !base.isEmpty() && expr2.isOnly() {
+	} else if !base.IsEmpty() && expr2.IsOnly() {
 		typ = 'L'
-	} else if cycle.isOnly() {
+	} else if cycle.IsOnly() {
 		typ = 'C'
 	}
 
