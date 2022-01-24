@@ -80,10 +80,11 @@ Parser generator based on short BNF rules (SBNF) - experimental tool to parsing 
 
 	Remarks 1.
 	Exprimental utility, depending on the rules, can generate a "bad" parser that parses ambiguously or
-	goes into an infinite loop. As rules for determining the stopping or uniqueness of given rules,
+	goes into an infinite loop. As rules for determining the stopping or uniqueness (by input) of given rules,
 	this is an algorithmically unsolvable problem. Therefore, the user checks the rules himself.
 
 	Remarks 2.
-	Checks have been added to avoid common mistakes like recursion (A = B; B = A;)
+	Checks have been added to avoid common mistakes like recursion (A = B; B = A;), BUT no checks for 
+    loops of non-terminals like (A = B; B = C; C = A;). Therefore, the graph of bnf rules should preferably be acyclic.
 
 	See more complex example in parser_test.go
