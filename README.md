@@ -1,5 +1,11 @@
 ## **parsegen** v1.0
-### parsegen - is experimental tool to parsing data based on BNF rules.
+### parsegen - experimental tool for extracting data based on BNF rules.
+
+### Installation:
+
+```
+    go get github.com/kasaderos/parsegen
+```
 
 ###	Example:
 ```go
@@ -75,7 +81,7 @@ StatusOk :
             (* special case for [L]
                 S = ["-"] (minus or nothing) is equivalent to S = "-" | empty )           
 
-	2. Parsing starts from the initial 'S' (start rule)
+	2. Parsing starts from the initial 'S' start rule:
 	    S = A B ;
 		A = "A" ;
 		B = "B" ;
@@ -101,3 +107,20 @@ Checks have been added to avoid common mistakes like recursion (A = B; B = A;), 
 loops of non-terminals like (A = B; B = C; C = A;). Therefore, the graph of bnf rules should preferably be acyclic.
 
 See more complex example in parser_test.go
+
+### Next versions v1.1-2.0
+If this program helps to solve your problems, please donate. 
+If the project gets a good donation, in the next version the following will be done:
+
+- optimizations: reusing buffers, change some logic.
+- add specific rules like [], <m><n>entity, comments in ABNF 
+- common terminals
+- terminals: decimal %d
+
+Donation:
+
+   Yoomoney: 
+
+        web: https://yoomoney.ru/
+
+        ID: 4100117537690878 
