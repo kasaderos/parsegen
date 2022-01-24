@@ -43,7 +43,7 @@ StatusOk :
                 200
 ```
 
-	Guide:
+### Guide:
 
 	1. Rule types:
         non-terminals:
@@ -91,12 +91,12 @@ StatusOk :
 
     (* S not exported by default)
 
-### Remarks 1.
+### Remark 1.
 Exprimental utility, depending on the rules, can generate a "bad" parser that parses ambiguously or
 goes into an infinite loop. As rules for determining the stopping or uniqueness (by input) of given rules,
 this is an algorithmically unsolvable problem. Therefore, the user checks the rules himself.
 
-### Remarks 2.
+### Remark 2.
 Checks have been added to avoid common mistakes like recursion (A = B; B = A;), BUT no checks for 
 loops of non-terminals like (A = B; B = C; C = A;). Therefore, the graph of bnf rules should preferably be acyclic.
 
