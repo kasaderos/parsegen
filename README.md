@@ -1,33 +1,46 @@
-Parser generator based on short BNF rules (SBNF) - experimental tool to parsing data by BNF rules.
+## **parsegen** v1.0
+### parsegen - is experimental tool to parsing data based on BNF rules.
 
-	Example:
+###	Example:
+```go
+package main
+
+import (
+	"log"
+
+	"github.com/kasaderos/parsegen"
+)
+
+func main() {
+	parser, err := parsegen.Generate([]byte(
+		"S = Method sp Url sp StatusOk;" +
+			"Method = any(0x20);" +
+			"sp = 0x20 ;" +
+			"Url = any(0x20);" +
+			"StatusOk = integer;" +
+			"integer = digit digits;" +
+			"digit = 0x30-39 ;" +
+			"digits = { digit };",
+	))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	pd, err := parser.Parse([]byte("GET https://google.com 200"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	pd.Print()
+}
 ```
-    package main
-
-    import (
-        "log"
-
-        "github.com/kasaderos/parsegen"
-    )
-
-    func main() {
-        parser, err := parsegen.Generate([]byte(
-            "S = Method sp Url sp StatusOk;" +
-                "Method = any(0x20);" +
-                "sp = 0x20 ;" +
-                "Url = any(0x20);" +
-                "StatusOk = integer;",
-        ))
-        if err != nil {
-            log.Fatal(err)
-        }
-
-        pd, err := parser.Parse([]byte("GET https://google.com 200"))
-        if err != nil {
-            log.Fatal(err)
-        }
-        pd.Print()
-    }
+### Output
+```
+Method :
+                GET
+Url :
+                https://google.com
+StatusOk :
+                200
 ```
 
 	Guide:
@@ -78,13 +91,13 @@ Parser generator based on short BNF rules (SBNF) - experimental tool to parsing 
 
     (* S not exported by default)
 
-	Remarks 1.
-	Exprimental utility, depending on the rules, can generate a "bad" parser that parses ambiguously or
-	goes into an infinite loop. As rules for determining the stopping or uniqueness (by input) of given rules,
-	this is an algorithmically unsolvable problem. Therefore, the user checks the rules himself.
+### Remarks 1.
+Exprimental utility, depending on the rules, can generate a "bad" parser that parses ambiguously or
+goes into an infinite loop. As rules for determining the stopping or uniqueness (by input) of given rules,
+this is an algorithmically unsolvable problem. Therefore, the user checks the rules himself.
 
-	Remarks 2.
-	Checks have been added to avoid common mistakes like recursion (A = B; B = A;), BUT no checks for 
-    loops of non-terminals like (A = B; B = C; C = A;). Therefore, the graph of bnf rules should preferably be acyclic.
+### Remarks 2.
+Checks have been added to avoid common mistakes like recursion (A = B; B = A;), BUT no checks for 
+loops of non-terminals like (A = B; B = C; C = A;). Therefore, the graph of bnf rules should preferably be acyclic.
 
-	See more complex example in parser_test.go
+See more complex example in parser_test.go

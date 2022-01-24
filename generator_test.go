@@ -1,7 +1,6 @@
 package parsegen
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -73,9 +72,6 @@ func TestBacktrackLogic(t *testing.T) {
 	it, err := NewIterator([]byte("AB"))
 	assert(t, err == nil, err)
 	ret := execute(f, it)
-	lbls := it.Data().labels
-	fmt.Println(lbls)
-	assert(t, len(lbls["A"].i) > 0 && lbls["A"].i[0] == 0 && lbls["A"].j[0] == 2)
 	assert(t, ret == zero || ret == eof, "ret == err")
 	printTree(f)
 }
@@ -94,8 +90,6 @@ func TestBacktrackCycle(t *testing.T) {
 	it, err := NewIterator([]byte("ABABBC"))
 	assert(t, err == nil, err)
 	ret := execute(f, it)
-	lbls := it.Data().labels
-	assert(t, lbls["A"].i[0] == 0 && lbls["A"].j[0] == 4)
 	assert(t, ret == zero, "ret == err")
 }
 
@@ -123,9 +117,6 @@ func TestExecuteCycleData(t *testing.T) {
 	assert(t, err == nil, err)
 	ret := execute(f, it)
 	// printTree(f)
-	lbls := it.Data().labels
-	fmt.Println(lbls)
-	assert(t, len(lbls["A"].i) == 3 && len(lbls["SP"].j) == 4)
 	assert(t, ret == zero, "ret == err")
 }
 
@@ -134,9 +125,8 @@ func TestBaseRule(t *testing.T) {
 		"S = \"Hello World\" \" \" \"!!!\";",
 	))
 	assert(t, err == nil, err)
-	pd, err := parser.Parse([]byte("Hello World !!!"))
+	_, err = parser.Parse([]byte("Hello World !!!"))
 	assert(t, err == nil, err)
-	fmt.Println(pd.labels)
 }
 
 func TestCaseRule(t *testing.T) {
@@ -144,9 +134,8 @@ func TestCaseRule(t *testing.T) {
 		"S = \"!!\" | \"Hello World\" | \"!\" ;",
 	))
 	assert(t, err == nil, err)
-	pd, err := parser.Parse([]byte("Hello World"))
+	_, err = parser.Parse([]byte("Hello World"))
 	assert(t, err == nil, err)
-	fmt.Println(pd.labels)
 }
 
 func TestCycleRule(t *testing.T) {
@@ -154,9 +143,8 @@ func TestCycleRule(t *testing.T) {
 		"S = { \"Hello World;\" } ;",
 	))
 	assert(t, err == nil, err)
-	pd, err := parser.Parse([]byte("Hello World;Hello World;"))
+	_, err = parser.Parse([]byte("Hello World;Hello World;"))
 	assert(t, err == nil, err)
-	fmt.Println(pd.labels)
 }
 
 func TestTwoRules(t *testing.T) {
@@ -165,12 +153,10 @@ func TestTwoRules(t *testing.T) {
 			"A = { \"Hello World\" } ;",
 	))
 	assert(t, err == nil, err)
-	pd, err := parser.Parse([]byte("Hello World!!!"))
+	_, err = parser.Parse([]byte("Hello World!!!"))
 	assert(t, err == nil, err)
-	fmt.Println(pd.labels)
-	pd, err = parser.Parse([]byte("!!!"))
+	_, err = parser.Parse([]byte("!!!"))
 	assert(t, err == nil, err)
-	fmt.Println(pd.labels)
 }
 
 func TestHttpGetRequest(t *testing.T) {

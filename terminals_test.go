@@ -1,12 +1,10 @@
 package parsegen
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestStr(t *testing.T) {
-	// TODO add bad tests and check error
 	s := "abcd bcd"
 	name := "String"
 	rules := []*Rule{
@@ -21,11 +19,8 @@ func TestStr(t *testing.T) {
 	assert(t, err == nil, err)
 	it, err := NewIterator([]byte(s))
 	assert(t, err == nil, err)
-	execute(f, it)
-	i := it.Data().labels[name].i[0]
-	j := it.Data().labels[name].j[0]
-	assert(t, i == 0, i)
-	assert(t, j == 8, j)
+	ret := execute(f, it)
+	assert(t, ret == eof)
 }
 
 func TestAnyQuoted(t *testing.T) {
@@ -44,11 +39,8 @@ func TestAnyQuoted(t *testing.T) {
 	assert(t, err == nil, err)
 	it, err := NewIterator([]byte(s))
 	assert(t, err == nil, err)
-	execute(f, it)
-	i := it.Data().labels[name].i[0]
-	j := it.Data().labels[name].j[0]
-	assert(t, i == 0, i)
-	assert(t, j == 10, j)
+	ret := execute(f, it)
+	assert(t, ret == eof)
 }
 
 func TestID(t *testing.T) {
@@ -67,11 +59,8 @@ func TestID(t *testing.T) {
 	assert(t, err == nil, err)
 	it, err := NewIterator([]byte(s))
 	assert(t, err == nil, err)
-	execute(f, it)
-	i := it.Data().labels[name].i[0]
-	j := it.Data().labels[name].j[0]
-	assert(t, i == 0, i)
-	assert(t, j == 4, j)
+	ret := execute(f, it)
+	assert(t, ret == eof)
 }
 
 func TestCombined1(t *testing.T) {
@@ -101,8 +90,8 @@ func TestCombined1(t *testing.T) {
 	assert(t, err == nil, err)
 	it, err := NewIterator([]byte(s))
 	assert(t, err == nil, err)
-	execute(f, it)
-	fmt.Println(it.Data().labels)
+	ret := execute(f, it)
+	assert(t, ret == eof)
 }
 
 func TestCombined2(t *testing.T) {
@@ -159,8 +148,8 @@ func TestCombined2(t *testing.T) {
 	assert(t, err == nil, err)
 	it, err := NewIterator([]byte(s))
 	assert(t, err == nil, err)
-	execute(f, it)
-	fmt.Println(it.Data().labels)
+	ret := execute(f, it)
+	assert(t, ret == eof)
 }
 
 func TestTermHex(t *testing.T) {
@@ -171,9 +160,8 @@ func TestTermHex(t *testing.T) {
 			"A1 = { 0x30-39 } ;",
 	))
 	assert(t, err == nil, err)
-	pd, err := parser.Parse([]byte("121313"))
+	_, err = parser.Parse([]byte("121313"))
 	assert(t, err == nil, err)
-	fmt.Println(pd.labels)
 }
 
 func TestTermEmpty(t *testing.T) {
@@ -183,15 +171,12 @@ func TestTermEmpty(t *testing.T) {
 			"A = 0x2b | 0x2d | empty ;",
 	))
 	assert(t, err == nil, err)
-	pd, err := parser.Parse([]byte("+7"))
+	_, err = parser.Parse([]byte("+7"))
 	assert(t, err == nil, err)
-	fmt.Println(pd.labels)
-	pd, err = parser.Parse([]byte("-7"))
+	_, err = parser.Parse([]byte("-7"))
 	assert(t, err == nil, err)
-	fmt.Println(pd.labels)
-	pd, err = parser.Parse([]byte("7"))
+	_, err = parser.Parse([]byte("7"))
 	assert(t, err == nil, err)
-	fmt.Println(pd.labels)
 }
 
 func TestCycleTermEmpty(t *testing.T) {
@@ -200,7 +185,6 @@ func TestCycleTermEmpty(t *testing.T) {
 			"A = { empty } ;",
 	))
 	assert(t, err == nil, err)
-	pd, err := parser.Parse([]byte("  "))
+	_, err = parser.Parse([]byte("  "))
 	assert(t, err == nil, err)
-	fmt.Println(pd.labels)
 }

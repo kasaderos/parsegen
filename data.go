@@ -41,10 +41,11 @@ type ParsedData struct {
 }
 
 type Data interface {
-	Data() *ParsedData
 	Get(string) []byte
 	GetAll(string) [][]byte
 	Clean()
+	Print()
+	GetLabel(string) label
 }
 
 type Labeler interface {

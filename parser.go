@@ -14,7 +14,7 @@ func (p *Parser) PrintTree() {
 	printTree(p.f)
 }
 
-func (p *Parser) Parse(data []byte) (*ParsedData, error) {
+func (p *Parser) Parse(data []byte) (Data, error) {
 	dataIt, err := NewIterator(data)
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func (p *Parser) Parse(data []byte) (*ParsedData, error) {
 }
 
 // ParseAll parses data until it reaches the end
-func (p *Parser) ParseAll(data []byte) (*ParsedData, error) {
+func (p *Parser) ParseAll(data []byte) (Data, error) {
 	dataIt, err := NewIterator(data)
 	if err != nil {
 		return nil, err

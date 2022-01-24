@@ -30,7 +30,7 @@ type Iterator interface {
 	BT(int)
 	SetError(string)
 	Labeler
-	Data
+	Data() Data
 }
 
 func NewIterator(data []byte) (Iterator, error) {
@@ -73,4 +73,8 @@ func (it *CommonIterator) GP() int {
 func (it *CommonIterator) BT(ind int) {
 	it.ind = ind
 	it.curr = it.data[ind]
+}
+
+func (it *CommonIterator) Data() Data {
+	return it.ParsedData
 }
