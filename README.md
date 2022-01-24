@@ -48,13 +48,13 @@ StatusOk :
 	1. Rule types:
         non-terminals:
 		[N] group:
-            rule1 = A1 A2 A3 ... An ;         - strictly ordered group,  Ai in ([N], [T]), i = 1..n
+            rule1 = A1 A2 A3 ... An ;         - strictly ordered group,  Ai in ([N], [T], [C], [L]), i = 1..n
 
 		[L] logic, :
-            rule2 = A1 | A2 | A3 ... | An ;   - first left matching,     Ai in ([N], [T], [C]), i = 1..n
+            rule2 = A1 | A2 | A3 ... | An ;   - first left matching,     Ai in ([N], [T], [C], [L]), i = 1..n
 
 		[C] cycle :
-            rule3 = { A } ;                   - zero or more times A,     A in ([N], [T], [C])
+            rule3 = { A } ;                   - zero or more times A,     A in ([N], [T], [C], [L])
 
         terminals (not rule):
         [T] : 
