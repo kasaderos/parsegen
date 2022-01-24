@@ -1,4 +1,5 @@
 ## **parsegen** v1.0
+<span style="color:blue">#parser #generator \#golang \#bnf \#parsing </span>
 ### parsegen - experimental tool for extracting data based on BNF rules.
 
 ### Installation:
