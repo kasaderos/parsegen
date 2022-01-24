@@ -97,6 +97,7 @@ StatusOk :
 
     (* S not exported by default)
 
+
 ### Remark 1.
 Exprimental utility, depending on the rules, can generate a "bad" parser that parses ambiguously or
 goes into an infinite loop. As rules for determining the stopping or uniqueness (by input) of given rules,
@@ -106,16 +107,17 @@ this is an algorithmically unsolvable problem. Therefore, the user checks the ru
 Checks have been added to avoid common mistakes like recursion (A = B; B = A;), BUT no checks for 
 loops of non-terminals like (A = B; B = C; C = A;). Therefore, the graph of bnf rules should preferably be acyclic.
 
-See more complex example in parser_test.go
+See more complex example in **parser_test.go**. Try additional tools  [bnfchecker](https://github.com/kasaderos/bnfchecker)
+
 
 ### Next versions v1.1-2.0
 If this program helps to solve your problems, please donate. 
 If the project gets a good donation, in the next version the following will be done:
 
-- optimizations: reusing buffers, change some logic.
-- add specific rules like [], <m><n>entity, comments in ABNF 
-- common terminals
-- terminals: decimal %d
+- optimizations: reuse buffers, change some logic.
+- add specific rules ```[ "may be" ], <m><n>entity, comments``` like in ABNF 
+- add common terminals like ```digit, alpha, ...``` 
+
 
 Donation:
 
