@@ -14,6 +14,8 @@ func (p *Parser) PrintTree() {
 	printTree(p.f)
 }
 
+// Parse parses data array by BNF.
+// If the data structure does not match the bnf of the parser, it returns an error.
 func (p *Parser) Parse(data []byte) (Data, error) {
 	dataIt, err := NewIterator(data)
 	if err != nil {
