@@ -179,7 +179,10 @@ func TestHttpGetRequest(t *testing.T) {
 			"Method = any(0x20);" +
 			"SP = 0x20 ;" +
 			"Url = any(0x20);" +
-			"StatusOk = integer;",
+			"StatusOk = integer;" +
+			"integer = digit digits;" +
+			"digit = 0x30-39;" +
+			"digits = { digit };",
 	))
 	assert(t, err == nil, err)
 	_, err = parser.Parse([]byte("GET https://google.com 200"))

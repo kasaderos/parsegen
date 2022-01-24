@@ -9,7 +9,6 @@ func termStr(s string) tFunc {
 	return func(it Iterator) code {
 		for _, c := range b {
 			if c != it.CC() {
-				// log.Printf("Str[T]: not matched %c != %c", c, it.CC())
 				return missed
 			}
 			it.GC()
@@ -19,7 +18,6 @@ func termStr(s string) tFunc {
 }
 
 // any(c), any[c], where c is character
-// todo add digit, integer ...
 func termBasicAny() tFunc {
 	return func(it Iterator) code {
 		for _, c := range anyPrefix {

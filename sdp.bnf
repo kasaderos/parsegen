@@ -268,3 +268,5 @@ space = " " ;
 alpha = 0x61-7a | 0x41-5a ;
 
 vchar = 0x21-7e;
+
+integer = digit-C1;

@@ -86,6 +86,7 @@ func recPrint(f *function, i int) {
 		}
 	}
 }
+
 func printTree(f *function) {
 	recPrint(f, 1)
 }
@@ -93,18 +94,18 @@ func printTree(f *function) {
 func checkBNF(f *function) error {
 	if f.isTerminal() {
 		if f.hasNext(0) {
-			return errors.New("terminal has child")
+			return errors.New("[check] terminal has child")
 		}
 		return nil
 	}
 
 	if f.isCycle() && f.hasNext(0) {
-		return errors.New("cycle has more child than one")
+		return errors.New("[check] cycle has more child than one")
 	}
 
 	for _, fn := range f.funcs {
 		if fn == f || fn.name == f.name {
-			return errors.New("found recursion " + f.name)
+			return errors.New("[check] found recursion " + f.name)
 		}
 		if err := checkBNF(fn); err != nil {
 			return err

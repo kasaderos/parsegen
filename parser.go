@@ -1,12 +1,17 @@
 package parsegen
 
 import (
-	"errors"
+	"fmt"
 	"log"
 )
 
 type Parser struct {
 	f *function
+}
+
+// PrintTree prints a graph of parser
+func (p *Parser) PrintTree() {
+	printTree(p.f)
 }
 
 func (p *Parser) Parse(data []byte) (*ParsedData, error) {
@@ -16,7 +21,7 @@ func (p *Parser) Parse(data []byte) (*ParsedData, error) {
 	}
 
 	if execute(p.f, dataIt) == missed {
-		return nil, errors.New("exec data error")
+		return nil, fmt.Errorf("[exec] data error, stopped at %d, '%c'", dataIt.GP(), dataIt.CC())
 	}
 	return dataIt.Data(), nil
 }
@@ -30,7 +35,7 @@ func (p *Parser) ParseAll(data []byte) (*ParsedData, error) {
 
 	for !dataIt.EOF() {
 		if execute(p.f, dataIt) == missed {
-			return nil, errors.New("exec data error")
+			return nil, fmt.Errorf("[exec] data error, stopped at %d, '%c'", dataIt.GP(), dataIt.CC())
 		}
 		dataIt.Data().Print()
 	}
@@ -54,7 +59,7 @@ func Generate(bnf []byte) (*Parser, error) {
 	for !it.EOF() {
 		ret := execute(f, it)
 		if ret == missed {
-			return nil, errors.New("not bnf rule")
+			return nil, fmt.Errorf("[gen] not bnf rule, stopped at %d '%c'", it.GP(), it.CC())
 		}
 
 		rule, err := generateRule(it)
@@ -63,7 +68,7 @@ func Generate(bnf []byte) (*Parser, error) {
 		}
 		it.Data().Clean()
 		rules = append(rules, rule)
-		log.Println("appended rule", rule.lvalue.name)
+		log.Println("[gen] appended rule", rule.lvalue.name)
 	}
 	f, err = generateFunction(rules)
 	if err != nil {

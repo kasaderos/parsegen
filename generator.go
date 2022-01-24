@@ -37,11 +37,11 @@ func generateRule(it Iterator) (*Rule, error) {
 	}
 
 	if typ == 'Z' {
-		return nil, errors.New("invalid expr")
+		return nil, fmt.Errorf("[gen] invalid expr, '%s'", pd.Get("expr"))
 	}
 	lid := string(pd.Get(lidTerm))
 	if len(lid) < 1 {
-		return nil, errors.New("lvalue empty")
+		return nil, errors.New("[gen] got empty lvalue")
 	}
 
 	rule := &Rule{
@@ -56,21 +56,16 @@ func generateRule(it Iterator) (*Rule, error) {
 LP:
 	for _, item := range pd.GetAll("rvalue") {
 		if Debug {
-			fmt.Println("rvalue", string(item))
+			fmt.Println("[debug] rvalue", string(item))
 		}
 		if len(item) < 1 {
-			return nil, errors.New("rvalue empty")
+			return nil, errors.New("[gen] got empty rvalue")
 		}
 		// check is rid any
 		endSymbol := byte(0)
 		includeFlag := false
 		if isTermAny(item, &endSymbol, &includeFlag) {
 			rvalue = append(rvalue, term{typ: 'T', name: string(item), terminal: termAny(endSymbol, includeFlag)})
-			continue LP
-		}
-
-		if isTermInteger(item) {
-			rvalue = append(rvalue, term{typ: 'T', name: string(item), terminal: termInteger()})
 			continue LP
 		}
 
@@ -97,7 +92,7 @@ LP:
 		}
 		// str: "a", "absdf"
 		if len(item) < 3 {
-			return nil, errors.New("str must have at least one character")
+			return nil, fmt.Errorf("[gen] string must have at least one character, '%s'", item)
 		}
 		for _, str := range pd.GetAll("string") {
 			if bytes.Equal(item, str) {
@@ -107,7 +102,7 @@ LP:
 				continue LP
 			}
 		}
-		return nil, errors.New("invalid rvalue")
+		return nil, fmt.Errorf("[gen] invalid rvalue %s", item)
 	}
 
 	rule.rvalue = rvalue
@@ -149,7 +144,7 @@ func generateFunction(rules []*Rule) (*function, error) {
 		}
 	}
 	if count != 1 {
-		return nil, errors.New("initial rule 'S' not found or there're more than one")
+		return nil, errors.New("[gen] initial rule 'S' not found or there're more than one")
 	}
 
 	// brute force O(n^3)
@@ -162,7 +157,7 @@ func generateFunction(rules []*Rule) (*function, error) {
 
 			f, ok := lvalues[subf.name]
 			if !ok {
-				return nil, fmt.Errorf("not resolved entity %s", subf.name)
+				return nil, fmt.Errorf("[gen] not resolved entity %s", subf.name)
 			}
 			subf.typ = f.typ
 
